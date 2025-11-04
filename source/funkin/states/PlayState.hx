@@ -3576,7 +3576,7 @@ class PlayState extends MusicBeatState
 		if (spr != null)
 		{
 			spr.playAnim('confirm', true, note);
-			spr.resetAnim = (Conductor.stepCrotchet / 1000);
+			spr.resetAnim = time;
 		}
 	}
 	
