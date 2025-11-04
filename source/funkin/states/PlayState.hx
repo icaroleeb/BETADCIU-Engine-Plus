@@ -3283,33 +3283,36 @@ class PlayState extends MusicBeatState
 					// ghost stuff
 					final chord = noteRows[note.mustPress ? 0 : 1][note.row];
 					
-					if (ClientPrefs.jumpGhosts && char.ghostsEnabled && !note.isSustainNote && chord != null && chord.length > 1 && note.noteType != "Ghost Note")
+					if (!(char.holdStyle && note.isSustainNote))
 					{
-						final animNote = chord[0];
-						final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + animSuffix;
-						
-						if (char.mostRecentRow != note.row) char.playAnim(realAnim, true);
-						
-						if (note.nextNote != null && note.prevNote != null)
+						if (ClientPrefs.jumpGhosts && char.ghostsEnabled && chord != null && chord.length > 1 && note.noteType != "Ghost Note")
 						{
-							if (note != animNote
-								&& !note.nextNote.isSustainNote
-								&& scripts.call('onGhostAnim', [animToPlay, note]) != ScriptConstants.Function_Stop)
+							final animNote = chord[0];
+							final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + animSuffix;
+							
+							if (char.mostRecentRow != note.row) char.playAnim(realAnim, true);
+							
+							if (note.nextNote != null && note.prevNote != null)
 							{
-								char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+								if (note != animNote
+									&& !note.nextNote.isSustainNote
+									&& scripts.call('onGhostAnim', [animToPlay, note]) != ScriptConstants.Function_Stop)
+								{
+									char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+								}
+								else if (note.nextNote.isSustainNote)
+								{
+									char.playAnim(realAnim, true);
+									char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+								}
 							}
-							else if (note.nextNote.isSustainNote)
-							{
-								char.playAnim(realAnim, true);
-								char.playGhostAnim(chord.indexOf(note), animToPlay, true);
-							}
+							char.mostRecentRow = note.row;
 						}
-						char.mostRecentRow = note.row;
-					}
-					else
-					{
-						if (note.noteType != "Ghost Note") char.playAnim(animToPlay, true);
-						else char.playGhostAnim(note.noteData, animToPlay, true);
+						else
+						{
+							if (note.noteType != "Ghost Note") char.playAnim(animToPlay, true);
+							else char.playGhostAnim(note.noteData, animToPlay, true);
+						}
 					}
 					
 					switch (note.noteType)
@@ -3573,7 +3576,7 @@ class PlayState extends MusicBeatState
 		if (spr != null)
 		{
 			spr.playAnim('confirm', true, note);
-			spr.resetAnim = time;
+			spr.resetAnim = (Conductor.stepCrotchet / 1000);
 		}
 	}
 	

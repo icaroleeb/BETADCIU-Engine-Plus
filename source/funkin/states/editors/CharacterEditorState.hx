@@ -405,6 +405,11 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 			character.flipX = (character.originalFlipX != character.isPlayer);
 		}
 		
+		uiElements.characterDialogBox.holdStyleCheckBox.onChange = (ui) -> {
+			character.originalHoldStyle = ui.value.toBool();
+			character.holdStyle = character.originalHoldStyle;
+		}
+		
 		uiElements.characterDialogBox.antialiasingCheckbox.onChange = (ui) -> {
 			character.noAntialiasing = !ui.value.toBool();
 			character.antialiasing = !character.noAntialiasing;
@@ -414,7 +419,7 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 			character.scalableOffsets = ui.value.toBool();
 		}
 		
-		for (i in [uiElements.characterDialogBox.flipXCheckbox, uiElements.characterDialogBox.antialiasingCheckbox, uiElements.characterDialogBox.scaledOffsetsCheckbox, uiElements.characterDialogBox.flipXAnimCheckbox, uiElements.characterDialogBox.flipYAnimCheckbox, uiElements.characterDialogBox.animationLoopCheckbox])
+		for (i in [uiElements.characterDialogBox.flipXCheckbox, uiElements.characterDialogBox.holdStyleCheckBox, uiElements.characterDialogBox.antialiasingCheckbox, uiElements.characterDialogBox.scaledOffsetsCheckbox, uiElements.characterDialogBox.flipXAnimCheckbox, uiElements.characterDialogBox.flipYAnimCheckbox, uiElements.characterDialogBox.animationLoopCheckbox])
 		{
 			i.onClick = (ui) -> {
 				addUndoAction(CHANGED_CHECKBOX, i, !i.value);
@@ -1109,6 +1114,7 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 		if (character == null) return;
 		
 		uiElements.characterDialogBox.flipXCheckbox.selected = character.originalFlipX;
+		uiElements.characterDialogBox.holdStyleCheckBox.selected = character.holdStyle;
 		uiElements.characterDialogBox.antialiasingCheckbox.value = !character.noAntialiasing;
 		uiElements.characterDialogBox.scaledOffsetsCheckbox.value = character.scalableOffsets;
 		
@@ -1412,6 +1418,7 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 				"position": character.positionArray,
 				"camera_position": character.cameraPosition,
 				"flip_x": character.originalFlipX,
+				"hold_style": character.originalHoldStyle,
 				"no_antialiasing": character.noAntialiasing,
 				"healthbar_colour": character.healthColour,
 				"scalableOffsets": character.scalableOffsets,
@@ -1515,6 +1522,7 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 			],
 			healthicon: "face",
 			flip_x: false,
+			hold_style: false,
 			healthbar_colour: FlxColor.GRAY,
 			camera_position: [
 				0,

@@ -60,6 +60,7 @@ class CharacterParser
 		data.flip_x ??= baseInfo.flip_x;
 		data.healthicon ??= baseInfo.healthicon;
 		data.healthbar_colour ??= baseInfo.healthbar_colour;
+		data.hold_style ??= baseInfo.hold_style;
 		data.image ??= baseInfo.image;
 		data.dance_every ??= baseInfo.dance_every;
 		data.position ??= baseInfo.position;
@@ -334,6 +335,7 @@ class CharacterParser
 			flip_x: false,
 			healthicon: 'face',
 			healthbar_colour: FlxColor.GRAY,
+			hold_style: false,
 			image: 'characters/BOYFRIEND',
 			dance_every: 2,
 			position: [0, 0],
@@ -465,6 +467,9 @@ typedef CharacterInfo =
 	 * The characters health colour.
 	 */
 	var healthbar_colour:Int;
+	
+	// uhh idk
+	var hold_style:Bool;
 	
 	/**
 	 * How many beats between the characters `dance`
