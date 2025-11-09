@@ -426,7 +426,12 @@ class WIPNoteSkinEditor extends UIState
 	{
 		var skinList = [];
 		#if MODS_ALLOWED
-		for (file in Paths.listAllFilesInDirectory('noteskins/'))
+		var files = Paths.listAllFilesInDirectory('data/noteskins/');
+		
+		for (i in Paths.listAllFilesInDirectory('noteskins/'))
+			files.push(i);
+			
+		for (file in files)
 		{
 			if (file.endsWith('.json'))
 			{

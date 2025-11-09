@@ -1,6 +1,9 @@
 package funkin;
 
+import openfl.display.PNGEncoderOptions;
 import openfl.utils.Assets;
+
+import lime.graphics.Image;
 
 import haxe.Json;
 
@@ -10,7 +13,11 @@ import haxe.Json;
 typedef ModMeta =
 {
 	name:String,
-	global:Bool
+	global:Bool,
+	
+	windowTitle:String,
+	iconFile:String,
+	defaultTransition:String
 }
 
 typedef ModsList =
@@ -241,11 +248,76 @@ class Mods
 	
 	public static function loadTopMod()
 	{
-		Mods.currentModDirectory = '';
+		currentModDirectory = '';
 		
 		#if MODS_ALLOWED
-		var list:Array<String> = Mods.parseList().enabled;
-		if (list != null && list[0] != null) Mods.currentModDirectory = list[0];
+		if (FileSystem.exists("modsList.txt"))
+		{
+			var list:Array<String> = CoolUtil.listFromString(File.getContent("modsList.txt"));
+			var foundTheTop = false;
+			for (i in list)
+			{
+				var dat = i.split("|");
+				if (dat[1] == "1" && !foundTheTop)
+				{
+					foundTheTop = true;
+					currentModDirectory = dat[0];
+				}
+			}
+		}
+		
+		loadTopModConfig();
 		#end
+	}
+	
+	public static function loadTopModConfig()
+	{
+		var pack = getPack();
+		if (pack != null)
+		{
+			funkin.utils.WindowUtil.setTitle(pack.windowTitle ?? 'Friday Night Funkin');
+			
+			if (pack.iconFile != null)
+			{
+				// non-working byte translation for the icon. im just fat and lazy and cant figure it out. will make better later
+				
+				// var bmp = Paths.image(pack.iconFile).bitmap;
+				// trace(Paths.image(pack.iconFile));
+				// FlxG.stage.window.setIcon(Image.fromBytes(bmp.encode(bmp.rect, new PNGEncoderOptions())));
+				
+				FlxG.stage.window.setIcon(Image.fromBitmapData(Paths.image(pack.iconFile).bitmap));
+			}
+			else trace('No custom icon for ${pack.name}');
+			
+			if (pack.defaultTransition != null)
+			{
+				var trans = null;
+				
+				switch (pack.defaultTransition)
+				{
+					case 'base', 'swipe':
+						var trans = funkin.states.transitions.SwipeTransition;
+						
+						funkin.backend.MusicBeatState.transitionInState = trans;
+						funkin.backend.MusicBeatState.transitionOutState = trans;
+					case 'fade':
+						var trans = funkin.states.transitions.FadeTransition;
+						
+						funkin.backend.MusicBeatState.transitionInState = trans;
+						funkin.backend.MusicBeatState.transitionOutState = trans;
+					default:
+						funkin.states.transitions.ScriptedTransition.setTransition(pack.defaultTransition);
+				}
+			}
+			else
+			{
+				trace('No custom transition for ${pack.name}');
+				
+				var trans = funkin.states.transitions.SwipeTransition;
+				
+				funkin.backend.MusicBeatState.transitionInState = trans;
+				funkin.backend.MusicBeatState.transitionOutState = trans;
+			}
+		}
 	}
 }

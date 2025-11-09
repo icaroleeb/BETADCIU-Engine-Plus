@@ -75,7 +75,10 @@ class Paths
 	
 	public static inline function noteskin(key:String, ?parentFolder:String, checkMods:Bool = true):String
 	{
-		return getPath('noteskins/$key.json', TEXT, parentFolder, checkMods);
+		var path = getPath('data/noteskins/$key.json', TEXT, parentFolder, checkMods);
+		if (!FunkinAssets.exists(path, TEXT)) path = getPath('noteskins/$key.json', TEXT, parentFolder, checkMods);
+		
+		return path;
 	}
 	
 	public static inline function fragment(key:String, checkMods:Bool = true):String

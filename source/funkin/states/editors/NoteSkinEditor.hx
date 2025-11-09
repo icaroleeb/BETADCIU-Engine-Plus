@@ -1362,12 +1362,19 @@ class NoteSkinEditor extends MusicBeatState
 		#if MODS_ALLOWED
 		skinList = [];
 		var directories:Array<String> = [
+			Paths.mods('data/noteskins/'),
+			Paths.mods(Mods.currentModDirectory + '/data/noteskins/'),
+			Paths.getCorePath('data/noteskins/'),
+			
 			Paths.mods('noteskins/'),
 			Paths.mods(Mods.currentModDirectory + '/noteskins/'),
 			Paths.getCorePath('noteskins/')
 		];
 		for (mod in Mods.globalMods)
+		{
+			directories.push(Paths.mods(mod + '/data/noteskins/'));
 			directories.push(Paths.mods(mod + '/noteskins/'));
+		}
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];

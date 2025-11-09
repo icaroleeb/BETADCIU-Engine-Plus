@@ -1087,7 +1087,11 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 		var characterList:Array<String> = [];
 		
 		#if MODS_ALLOWED
-		for (file in Paths.listAllFilesInDirectory('characters/'))
+		var dir = Paths.listAllFilesInDirectory('data/characters/');
+		for (i in Paths.listAllFilesInDirectory('characters/'))
+			dir.push(i);
+			
+		for (file in dir)
 		{
 			if (file.endsWith('.json') || file.endsWith('.xml'))
 			{

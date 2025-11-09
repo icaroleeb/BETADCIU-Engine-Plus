@@ -29,9 +29,8 @@ class Init extends FlxState
 		
 		#if MODS_ALLOWED
 		funkin.Mods.pushGlobalMods();
+		funkin.Mods.loadTopMod();
 		#end
-		
-		funkin.data.WeekData.loadTheFirstEnabledMod();
 		
 		// set some flixel settings
 		FlxG.fixedTimestep = false;

@@ -16,12 +16,11 @@ class CharacterParser
 	 */
 	public static function fetchInfo(id:String):CharacterInfo
 	{
-		var charPath = Paths.findFileWithExts('characters/$id', ['json', 'xml']);
+		var charPath = Paths.findFileWithExts('data/characters/$id', ['json', 'xml']);
 		
-		if (!FunkinAssets.exists(charPath))
-		{
-			charPath = Paths.getCorePath('characters/${Character.DEFAULT_CHARACTER}.json');
-		}
+		if (!FunkinAssets.exists(charPath)) charPath = Paths.findFileWithExts('characters/$id', ['json', 'xml']);
+		
+		if (!FunkinAssets.exists(charPath)) charPath = Paths.getCorePath('data/characters/${Character.DEFAULT_CHARACTER}.json');
 		
 		var raw:String = '';
 		

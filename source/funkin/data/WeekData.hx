@@ -140,7 +140,10 @@ class WeekData
 		var originalLength:Int = directories.length;
 		#end
 		
-		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getPath('weeks/weekList.txt'));
+		var txtPath = Paths.getPath('data/weeks/weekList.txt');
+		if (!FunkinAssets.exists(txtPath)) txtPath = Paths.getPath('weeks/weekList.txt');
+		var sexList:Array<String> = CoolUtil.coolTextFile(txtPath);
+		
 		for (i in 0...sexList.length)
 		{
 			for (j in 0...directories.length)
@@ -176,7 +179,9 @@ class WeekData
 		#if MODS_ALLOWED
 		for (i in 0...directories.length)
 		{
-			var directory:String = directories[i] + 'weeks/';
+			var directory:String = directories[i] + 'data/weeks/';
+			if (!FileSystem.exists(directory)) directory = directories[i] + 'weeks/';
+			
 			if (FileSystem.exists(directory))
 			{
 				var listOfWeeks:Array<String> = CoolUtil.coolTextFile(directory + 'weekList.txt');

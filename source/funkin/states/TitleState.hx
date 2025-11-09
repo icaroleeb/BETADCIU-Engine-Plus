@@ -42,7 +42,7 @@ class TitleState extends MusicBeatState
 		Mods.pushGlobalMods();
 		#end
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
-		WeekData.loadTheFirstEnabledMod();
+		funkin.Mods.loadTopMod();
 		
 		randomIntroText = FlxG.random.getObject(getIntroText());
 		

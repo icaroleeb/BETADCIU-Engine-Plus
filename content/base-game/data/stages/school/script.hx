@@ -105,7 +105,7 @@ function onStartCountdown()
 		a = true;
 		if (Paths.formatToSongPath(PlayState.SONG.song) == 'roses') FlxG.sound.play(Paths.sound('ANGRY'));
 		
-		var path = Paths.getPath('data/' + songName + '/' + songName + 'Dialogue.txt', 'TEXT', null, true);
+		var path = Paths.getPath('data/dialogue/' + songName + '/' + songName + 'Dialogue.txt', 'TEXT', null, true);
 		dialogueBox = new DialogueBox(false, CoolUtil.coolTextFile(path));
 		dialogueBox.scrollFactor.set();
 		dialogueBox.finishThing = startCountdown;

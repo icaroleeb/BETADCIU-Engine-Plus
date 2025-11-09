@@ -190,7 +190,7 @@ class Stage extends FlxTypedContainer<FlxBasic>
 	
 	public function runScript(?group:ScriptGroup):Bool
 	{
-		final baseScriptFile:String = 'stages/$curStage/script';
+		var baseScriptFile:String = 'data/stages/$curStage/script';
 		
 		inline function startScript(scriptFile:String)
 		{
@@ -212,13 +212,18 @@ class Stage extends FlxTypedContainer<FlxBasic>
 			}
 		}
 		
-		var scriptFile = FunkinScript.getPath(baseScriptFile);
-		if (FunkinAssets.exists(scriptFile)) startScript(scriptFile);
-		else
+		inline function tryScript(path:String):Null<String>
 		{
-			scriptFile = FunkinScript.getPath('stages/$curStage');
-			if (FunkinAssets.exists(scriptFile)) startScript(scriptFile);
+			var scriptFile = FunkinScript.getPath(path);
+			return (FunkinAssets.exists(scriptFile) ? scriptFile : null);
 		}
+		
+		// rlly rlly funny line here but yk what its ok
+		var scriptFile = tryScript(baseScriptFile) ?? tryScript('data/stages/$curStage') ?? tryScript('stages/$curStage/script') ?? tryScript('stages/$curStage');
+		
+		// fuck you
+		@:nullSafety(Off)
+		startScript(scriptFile);
 		
 		#if VERBOSE_LOGS
 		if (script == null)

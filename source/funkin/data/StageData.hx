@@ -211,10 +211,19 @@ typedef StageObject =
 @:nullSafety
 class StageData
 {
+	// dealing with putting ur stage in data or just in the content folder directly
+	public static function getStageFromDir(dir:String, stage:String):String
+	{
+		var path = Paths.getPath('$dir/$stage/data.json', TEXT, null, true);
+		if (!FunkinAssets.exists(path, TEXT)) path = Paths.getPath('$dir/$stage.json', TEXT, null, true);
+		
+		return path;
+	}
+	
 	public static function getStageFile(stage:String):Null<StageFile>
 	{
-		var path = Paths.getPath('stages/$stage/data.json', TEXT, null, true);
-		if (!FunkinAssets.exists(path, TEXT)) path = Paths.getPath('stages/$stage.json', TEXT, null, true);
+		var path = getStageFromDir('data/stages', stage);
+		if (!FunkinAssets.exists(path, TEXT)) path = getStageFromDir('stages', stage);
 		
 		return FunkinAssets.exists(path, TEXT) ? cast FunkinAssets.parseJson(FunkinAssets.getContent(path)) : null;
 	}

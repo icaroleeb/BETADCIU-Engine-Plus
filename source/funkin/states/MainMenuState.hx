@@ -41,7 +41,7 @@ class MainMenuState extends MusicBeatState
 		#if MODS_ALLOWED
 		Mods.pushGlobalMods();
 		#end
-		WeekData.loadTheFirstEnabledMod();
+		funkin.Mods.loadTopMod();
 		
 		DiscordClient.changePresence("In the Menus");
 		
@@ -188,7 +188,7 @@ class MainMenuState extends MusicBeatState
 	
 	function changeItem(huh:Int = 0)
 	{
-		if(scriptGroup.call('onChangeItem', [huh]) != ScriptConstants.Function_Stop)
+		if (scriptGroup.call('onChangeItem', [huh]) != ScriptConstants.Function_Stop)
 		{
 			final prevObj = menuItems.members[curSelected];
 			prevObj.animation.play('idle');

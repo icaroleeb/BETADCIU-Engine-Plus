@@ -942,7 +942,8 @@ class PlayState extends MusicBeatState
 	
 	function startCharacterScript(name:String, char:Character):Void
 	{
-		final hscriptPath = FunkinScript.getPath('characters/$name');
+		var hscriptPath = FunkinScript.getPath('data/characters/$name');
+		if (!FunkinAssets.exists(hscriptPath, TEXT)) hscriptPath = FunkinScript.getPath('characters/$name');
 		
 		if (FunkinAssets.exists(hscriptPath, TEXT)) initFunkinScript(hscriptPath);
 	}
@@ -1466,7 +1467,8 @@ class PlayState extends MusicBeatState
 		{
 			if (!noteTypesPushed.contains(type))
 			{
-				final baseScriptFile = 'notetypes/$type';
+				var baseScriptFile = 'data/notetypes/$type';
+				if (!FunkinAssets.exists(baseScriptFile, TEXT)) baseScriptFile = 'notetypes/$type';
 				
 				final scriptFile = FunkinScript.getPath(baseScriptFile);
 				
@@ -1482,7 +1484,8 @@ class PlayState extends MusicBeatState
 			
 			if (!eventsPushed.contains(eventName))
 			{
-				final baseScriptFile:String = 'events/$eventName';
+				var baseScriptFile:String = 'data/events/$eventName';
+				if (!FunkinAssets.exists(baseScriptFile, TEXT)) baseScriptFile = 'events/$eventName';
 				
 				final scriptFile = FunkinScript.getPath(baseScriptFile);
 				

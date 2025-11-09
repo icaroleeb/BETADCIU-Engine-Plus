@@ -70,7 +70,7 @@ class OurLittleFriend extends FlxSprite
 	{
 		super();
 		final basePath = 'images/editors/friends/$char';
-		if (FileSystem.exists(Paths.getCorePath('$basePath.png')))
+		if (FunkinAssets.exists(Paths.getCorePath('$basePath.png')))
 		{
 			frames = Paths.getSparrowAtlas(basePath.substr(basePath.indexOf('/') + 1));
 			animation.addByPrefix('idle', 'i', 24);
@@ -91,7 +91,7 @@ class OurLittleFriend extends FlxSprite
 	function buildOffsets(?path:String)
 	{
 		path ??= _offsetPath;
-		if (FileSystem.exists(Paths.getCorePath('$path.txt'))) for (k => i in File.getContent(Paths.getCorePath('$path.txt')).trim().split('\n'))
+		if (FunkinAssets.exists(Paths.getCorePath('$path.txt'))) for (k => i in File.getContent(Paths.getCorePath('$path.txt')).trim().split('\n'))
 		{
 			var value = i.trim().split(',');
 			offsets.set(k, [Std.parseFloat(value[0]), Std.parseFloat(value[1])]);
@@ -714,14 +714,23 @@ class ChartEditorState extends MusicBeatState
 		blockPressWhileTypingOnStepper.push(stepperSpeed);
 		#if MODS_ALLOWED
 		var directories:Array<String> = [
+		
+			Paths.mods('data/characters/'),
+			Paths.mods(Mods.currentModDirectory + '/data/characters/'),
+			Paths.getCorePath('data/characters/'),
+			
 			Paths.mods('characters/'),
 			Paths.mods(Mods.currentModDirectory + '/characters/'),
-			Paths.getCorePath('characters/')
+			Paths.getCorePath('characters/'),
 		];
+		
 		for (mod in Mods.globalMods)
+		{
+			directories.push(Paths.mods(mod + '/data/characters/'));
 			directories.push(Paths.mods(mod + '/characters/'));
+		}
 		#else
-		var directories:Array<String> = [Paths.getCorePath('characters/')];
+		var directories:Array<String> = [Paths.getCorePath('data/characters/'), Paths.getCorePath('characters/')];
 		#end
 		
 		var tempMap:Map<String, Bool> = new Map<String, Bool>();
@@ -735,13 +744,13 @@ class ChartEditorState extends MusicBeatState
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];
-			if (FileSystem.exists(directory))
+			if (FunkinAssets.exists(directory))
 			{
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FunkinAssets.readDirectory(directory))
 				{
 					var path = haxe.io.Path.join([directory, file]);
 					var isXml = false;
-					if (!FileSystem.isDirectory(path) && (file.endsWith('.json') || (file.endsWith('.xml') && (isXml = true))))
+					if (!FunkinAssets.isDirectory(path) && (file.endsWith('.json') || (file.endsWith('.xml') && (isXml = true))))
 					{
 						var charToCheck:String = file.substr(0, file.length - (isXml ? 4 : 5));
 						if (!charToCheck.endsWith('-dead') && !tempMap.exists(charToCheck))
@@ -778,14 +787,21 @@ class ChartEditorState extends MusicBeatState
 		
 		#if MODS_ALLOWED
 		var directories:Array<String> = [
+			Paths.mods('data/stages/'),
+			Paths.mods(Mods.currentModDirectory + '/data/stages/'),
+			Paths.getCorePath('data/stages/'),
+			
 			Paths.mods('stages/'),
 			Paths.mods(Mods.currentModDirectory + '/stages/'),
 			Paths.getCorePath('stages/')
 		];
 		for (mod in Mods.globalMods)
+		{
+			directories.push(Paths.mods(mod + '/data/stages/'));
 			directories.push(Paths.mods(mod + '/stages/'));
+		}
 		#else
-		var directories:Array<String> = [Paths.getCorePath('stages/')];
+		var directories:Array<String> = [Paths.getCorePath('data/stages/'), Paths.getCorePath('stages/')];
 		#end
 		
 		tempMap.clear();
@@ -804,14 +820,19 @@ class ChartEditorState extends MusicBeatState
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];
-			if (FileSystem.exists(directory))
+			if (FunkinAssets.exists(directory))
 			{
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FunkinAssets.readDirectory(directory))
 				{
-					var path = haxe.io.Path.join([directory, file]);
-					if (file.endsWith('.json'))
+					// too lazy to make a func that checks if theres a file ending. go my shitty workaround!!!!!
+					if (!file.contains('.'))
 					{
-						var stageToCheck:String = file.endsWith('.json') ? file.substr(0, file.length - 5) : file;
+						tempMap.set(file, true);
+						stages.push(file);
+					}
+					else if (file.endsWith('json'))
+					{
+						var stageToCheck:String = file.substr(0, file.length - 5);
 						if (!tempMap.exists(stageToCheck))
 						{
 							tempMap.set(stageToCheck, true);
@@ -822,7 +843,6 @@ class ChartEditorState extends MusicBeatState
 			}
 		}
 		#end
-		
 		if (stages.length < 1) stages.push('stage');
 		
 		stageDropDown = new FlxUIDropDownMenuEx(player1DropDown.x + 140, player1DropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(character:String) {
@@ -1399,21 +1419,28 @@ class ChartEditorState extends MusicBeatState
 		var directories:Array<String> = [];
 		
 		#if MODS_ALLOWED
+		directories.push(Paths.mods('data/notetypes/'));
+		directories.push(Paths.mods(Mods.currentModDirectory + '/data/notetypes/'));
+		
 		directories.push(Paths.mods('notetypes/'));
 		directories.push(Paths.mods(Mods.currentModDirectory + '/notetypes/'));
+		
 		for (mod in Mods.globalMods)
+		{
+			directories.push(Paths.mods(mod + '/data/notetypes/'));
 			directories.push(Paths.mods(mod + '/notetypes/'));
+		}
 		#end
 		
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];
-			if (FileSystem.exists(directory))
+			if (FunkinAssets.exists(directory))
 			{
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FunkinAssets.readDirectory(directory))
 				{
 					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path))
+					if (!FunkinAssets.isDirectory(path))
 					{
 						for (ext in FunkinScript.H_EXTS)
 						{
@@ -1475,6 +1502,11 @@ class ChartEditorState extends MusicBeatState
 		var directories:Array<String> = [];
 		
 		#if MODS_ALLOWED
+		directories.push(Paths.mods('data/events/'));
+		directories.push(Paths.mods(Mods.currentModDirectory + '/data/events/'));
+		for (mod in Mods.globalMods)
+			directories.push(Paths.mods(mod + '/data/events/'));
+			
 		directories.push(Paths.mods('events/'));
 		directories.push(Paths.mods(Mods.currentModDirectory + '/events/'));
 		for (mod in Mods.globalMods)
@@ -1487,14 +1519,14 @@ class ChartEditorState extends MusicBeatState
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];
-			if (FileSystem.exists(directory))
+			if (FunkinAssets.exists(directory))
 			{
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FunkinAssets.readDirectory(directory))
 				{
 					var path = haxe.io.Path.join([directory, file]);
 					for (ext in 0...eventexts.length)
 					{
-						if (!FileSystem.isDirectory(path) && file != 'readme.txt' && file.endsWith(eventexts[ext]))
+						if (!FunkinAssets.isDirectory(path) && file != 'readme.txt' && file.endsWith(eventexts[ext]))
 						{
 							var fileToCheck:String = file.substr(0, file.length - removeShit[ext]);
 							if (!eventPushedMap.exists(fileToCheck))
@@ -1859,16 +1891,8 @@ class ChartEditorState extends MusicBeatState
 		
 		final playerVocalsSnd:Null<Sound> = Paths.voices(currentSongName, 'player') ?? Paths.voices(currentSongName, null);
 		
-		trace(playerVocalsSnd);
-		
-		if (playerVocalsSnd != null)
-		{
-			vocals.loadEmbedded(playerVocalsSnd);
-		}
-		else
-		{
-			trace('failed to load vocals for current song');
-		}
+		if (playerVocalsSnd != null) vocals.loadEmbedded(playerVocalsSnd);
+		else trace('failed to load vocals for current song');
 		
 		FlxG.sound.list.add(vocals);
 		
@@ -2758,7 +2782,7 @@ class ChartEditorState extends MusicBeatState
 			}
 			audioBuffers[0] = null;
 			#if MODS_ALLOWED
-			if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'))) {
+			if(FunkinAssets.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'))) {
 				audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
 				//trace('Custom vocals found');
 			}
@@ -2777,7 +2801,7 @@ class ChartEditorState extends MusicBeatState
 			}
 			audioBuffers[1] = null;
 			#if MODS_ALLOWED
-			if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
+			if(FunkinAssets.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
 				audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
 				//trace('Custom vocals found');
 			} else { #end
@@ -3253,21 +3277,23 @@ class ChartEditorState extends MusicBeatState
 	
 	function loadHealthIconFromCharacter(char:String)
 	{
-		var characterPath:String = 'characters/' + char + '.json';
+		var characterPath:String = 'data/characters/' + char + '.json';
+		if (!FunkinAssets.exists(characterPath)) characterPath = 'characters/$char.json';
+		
 		#if MODS_ALLOWED
 		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path))
+		if (!FunkinAssets.exists(path))
 		{
 			path = Paths.getCorePath(characterPath);
 		}
 		
-		if (!FileSystem.exists(path))
+		if (!FunkinAssets.exists(path))
 		#else
 		var path:String = Paths.getCorePath(characterPath);
 		if (!OpenFlAssets.exists(path))
 		#end
 		{
-			path = Paths.getCorePath('characters/' + Character.DEFAULT_CHARACTER + '.json'); // If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getCorePath('data/characters/' + Character.DEFAULT_CHARACTER + '.json'); // If a character couldn't be found, change him to BF just to prevent a crash
 		}
 		
 		#if MODS_ALLOWED
