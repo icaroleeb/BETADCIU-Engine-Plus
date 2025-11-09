@@ -6,6 +6,8 @@ import lime.graphics.Image;
 
 import haxe.Json;
 
+import funkin.states.transitions.*;
+
 // modified from modern psych
 // much love okay
 
@@ -31,7 +33,7 @@ class Mods
 	/**
 	 * The current primary loaded mod
 	 */
-	static public var currentModDirectory:Null<String> = '';
+	public static var currentModDirectory:Null<String> = '';
 	
 	public static final ignoreModFolders:Array<String> = [
 		'characters',
@@ -54,7 +56,7 @@ class Mods
 	/**
 	 * makes `modsList.txt` in the case it doesnt exist
 	 */
-	static function checkFile()
+	static function ensureModsListExists()
 	{
 		if (!FunkinAssets.exists('modsList.txt'))
 		{
@@ -155,7 +157,7 @@ class Mods
 		return foldersToCheck;
 	}
 	
-	public static function getPack(?folder:String = null):ModMeta
+	public static function getPack(?folder:String):ModMeta
 	{
 		#if MODS_ALLOWED
 		if (folder == null) folder = Mods.currentModDirectory;
@@ -197,7 +199,7 @@ class Mods
 	static function updateModList()
 	{
 		#if MODS_ALLOWED
-		checkFile();
+		ensureModsListExists();
 		
 		// Find all that are already ordered
 		var list:Array<{folder:String, enabled:Bool}> = [];
@@ -272,6 +274,7 @@ class Mods
 	public static function loadTopModConfig()
 	{
 		var pack = getPack();
+		
 		if (pack == null) return;
 		
 		funkin.utils.WindowUtil.setTitle(pack.windowTitle ?? 'Friday Night Funkin');
@@ -289,32 +292,28 @@ class Mods
 		
 		if (pack.defaultTransition != null)
 		{
-			var trans = null;
-			
 			switch (pack.defaultTransition)
 			{
 				case 'base', 'swipe':
-					var trans = funkin.states.transitions.SwipeTransition;
+					final trans = SwipeTransition;
 					
-					funkin.backend.MusicBeatState.transitionInState = trans;
-					funkin.backend.MusicBeatState.transitionOutState = trans;
+					MusicBeatState.transitionInState = trans;
+					MusicBeatState.transitionOutState = trans;
 				case 'fade':
-					var trans = funkin.states.transitions.FadeTransition;
+					final trans = FadeTransition;
 					
-					funkin.backend.MusicBeatState.transitionInState = trans;
-					funkin.backend.MusicBeatState.transitionOutState = trans;
+					MusicBeatState.transitionInState = trans;
+					MusicBeatState.transitionOutState = trans;
 				default:
-					funkin.states.transitions.ScriptedTransition.setTransition(pack.defaultTransition);
+					ScriptedTransition.setTransition(pack.defaultTransition);
 			}
 		}
 		else
 		{
-			trace('No custom transition for ${pack.name}');
+			final trans = SwipeTransition;
 			
-			var trans = funkin.states.transitions.SwipeTransition;
-			
-			funkin.backend.MusicBeatState.transitionInState = trans;
-			funkin.backend.MusicBeatState.transitionOutState = trans;
+			MusicBeatState.transitionInState = trans;
+			MusicBeatState.transitionOutState = trans;
 		}
 	}
 }
