@@ -280,10 +280,7 @@ class Mods
 			final path = Paths.getPath('images/${pack.iconFile}.png', IMAGE, null, true);
 			
 			if (FunkinAssets.exists(path)) FlxG.stage.window.setIcon(Image.fromBytes(FunkinAssets.getBytes(path)));
-			else
-			{
-				Logger.log('Could not find Icon ${pack.iconFile}', ERROR);
-			}
+			else Logger.log('Could not find Icon ${pack.iconFile}', ERROR);
 		}
 		
 		if (pack.defaultTransition != null)

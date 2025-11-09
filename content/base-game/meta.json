@@ -1,0 +1,8 @@
+{
+    "name": "Friday Night Funkin",
+    "global": true,
+
+    "windowTitle": "Friday Night Funkin",
+    "iconFile": "icon64",
+    "defaultTransition": "swipe"
+}
