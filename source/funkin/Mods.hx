@@ -273,7 +273,8 @@ class Mods
 	{
 		var pack = getPack();
 		if (pack == null) return;
-		if (pack != null) funkin.utils.WindowUtil.setTitle(pack.windowTitle ?? 'Friday Night Funkin');
+		
+		funkin.utils.WindowUtil.setTitle(pack.windowTitle ?? 'Friday Night Funkin');
 		
 		if (pack.iconFile != null)
 		{
