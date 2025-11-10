@@ -185,7 +185,6 @@ class StoryMenuState extends MusicBeatState
 	
 	override function closeSubState()
 	{
-		scriptGroup.call('onCloseSubState', []);
 		if (isHardcodedState())
 		{
 			persistentUpdate = true;

@@ -42,8 +42,6 @@ class HotReloadPlugin extends FlxBasic
 		
 		if (FlxG.keys.justPressed.F6)
 		{
-			trace('clearing and reloading');
-			
 			FlxG.signals.preStateCreate.addOnce((state) -> {
 				FunkinAssets.cache.clearStoredMemory();
 				FunkinAssets.cache.clearUnusedMemory();

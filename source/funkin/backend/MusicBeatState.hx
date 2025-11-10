@@ -232,4 +232,10 @@ class MusicBeatState extends FlxUIState
 		
 		super.destroy();
 	}
+	
+	override function closeSubState()
+	{
+		scriptGroup.call('onCloseSubState', []);
+		super.closeSubState();
+	}
 }
