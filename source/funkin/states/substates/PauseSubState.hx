@@ -26,6 +26,8 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 	
+	public static var instance:PauseSubState;
+
 	var menuItems:Array<String> = [];
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
 	var difficultyChoices = [];
@@ -44,6 +46,7 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		var cam:FlxCamera = CameraUtil.lastCamera;
 		
+		instance = this;
 		initStateScript('PauseSubState');
 		
 		if (isHardcodedState())
@@ -301,15 +304,23 @@ class PauseSubState extends MusicBeatSubstate
 					case 'Hawk Tuah Respect Button -->':
 						FlxG.sound.play(Paths.sound('untitled1'));
 					case "Exit to menu":
-						PlayState.deathCounter = 0;
-						PlayState.seenCutscene = false;
-						FlxG.switchState(() -> PlayState.isStoryMode ? new StoryMenuState() : new FreeplayState());
-						CoolUtil.cancelMusicFadeTween();
-						FunkinSound.playMusic(Paths.music('freakyMenu'));
-						PlayState.changedDifficulty = false;
-						PlayState.chartingMode = false;
+						returnToMain();
 				}
 			}
+		}
+	}
+
+	public function returnToMain()
+	{
+		if(scriptGroup.call('onExit',[]) != ScriptConstants.Function_Stop)
+		{
+			PlayState.deathCounter = 0;
+			PlayState.seenCutscene = false;
+			FlxG.switchState(() -> PlayState.isStoryMode ? new StoryMenuState() : new FreeplayState());
+			CoolUtil.cancelMusicFadeTween();
+			FunkinSound.playMusic(Paths.music('freakyMenu'));
+			PlayState.changedDifficulty = false;
+			PlayState.chartingMode = false;
 		}
 	}
 	

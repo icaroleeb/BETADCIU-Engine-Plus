@@ -1485,7 +1485,7 @@ class PlayState extends MusicBeatState
 			if (!eventsPushed.contains(eventName))
 			{
 				var baseScriptFile:String = 'data/events/$eventName';
-				if (!FunkinAssets.exists(baseScriptFile, TEXT)) baseScriptFile = 'events/$eventName';
+				if (!FunkinAssets.exists(FunkinScript.getPath(baseScriptFile), TEXT)) baseScriptFile = 'events/$eventName';
 				
 				final scriptFile = FunkinScript.getPath(baseScriptFile);
 				
