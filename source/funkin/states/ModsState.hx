@@ -16,7 +16,7 @@ class ModsState extends MusicBeatState
 		modList = Mods.getModDirectories();
 		
 		name = new FlxText();
-		name.setFormat(funkin.Mods.currentFont, 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		name.setFormat(Paths.DEFAULT_FONT, 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		name.text = 'Test Mod';
 		add(name);
 		

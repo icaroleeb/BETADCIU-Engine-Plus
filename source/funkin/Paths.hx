@@ -32,6 +32,13 @@ class Paths
 	 */
 	public static inline final MODS_DIRECTORY = #if ASSET_REDIRECT trail + 'content' #else 'content' #end;
 	
+	/**
+	 * Default font used by the game for most things.
+	 * 
+	 * can be changed
+	 */
+	public static var DEFAULT_FONT:String = 'vcr.ttf';
+	
 	public static function getPath(file:String, ?type:AssetType = TEXT, ?parentFolder:String, checkMods:Bool = false):String
 	{
 		if (parentFolder != null) file = '$parentFolder/$file';

@@ -59,7 +59,7 @@ class MasterEditorMenu extends MusicBeatState
 		add(textBG);
 		
 		directoryTxt = new FlxText(textBG.x, textBG.y + 4, FlxG.width, '', 32);
-		directoryTxt.setFormat(funkin.Mods.currentFont, 32, FlxColor.WHITE, CENTER);
+		directoryTxt.setFormat(Paths.DEFAULT_FONT, 32, FlxColor.WHITE, CENTER);
 		directoryTxt.scrollFactor.set();
 		add(directoryTxt);
 		

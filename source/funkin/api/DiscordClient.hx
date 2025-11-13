@@ -171,6 +171,8 @@ class DiscordClient
  */
 class DiscordClient
 {
+	public static final NMV_ID:String = '1252033037680513115';
+	
 	public static var rpcId(default, set):String = '';
 	
 	public static function changePresence(details:String = 'In the Menus', ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float):Void {}

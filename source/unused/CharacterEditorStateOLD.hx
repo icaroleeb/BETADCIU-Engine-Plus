@@ -116,7 +116,7 @@ class CharacterEditorStateOLD extends MusicBeatState
 		dumbTexts.cameras = [camHUD];
 		
 		textAnim = new FlxText(300, 16);
-		textAnim.setFormat(funkin.Mods.currentFont, 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		textAnim.setFormat(Paths.DEFAULT_FONT, 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		textAnim.borderSize = 1;
 		textAnim.size = 32;
 		textAnim.scrollFactor.set();

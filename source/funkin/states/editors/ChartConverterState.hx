@@ -70,7 +70,7 @@ class ChartConverterState extends MusicBeatState
 		add(descriptionBG);
 		
 		description = new FlxText(25, 0, FlxG.width - 50, 'd', 26);
-		description.setFormat(funkin.Mods.currentFont, 26, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		description.setFormat(Paths.DEFAULT_FONT, 26, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		description.borderSize = 2.4;
 		add(description);
 		description.y = FlxG.height - description.height - 20;

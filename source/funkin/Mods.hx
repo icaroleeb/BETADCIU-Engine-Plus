@@ -53,9 +53,7 @@ class Mods
 	 */
 	public static var currentModDirectory:Null<String> = '';
 	
-	public static var currentMod:Null<ModMeta>;
-	
-	public static var currentFont:String = '';
+	public static var currentMod:Null<ModMeta> = null;
 	
 	public static final ignoreModFolders:Array<String> = [
 		'characters',
@@ -359,16 +357,15 @@ class Mods
 		{
 			if (FunkinAssets.exists(Paths.font(pack.defaultFont)))
 			{
-				currentFont = Paths.font(pack.defaultFont);
-				trace(currentFont);
+				Paths.DEFAULT_FONT = Paths.font(pack.defaultFont);
 			}
 			else
 			{
-				currentFont = Paths.font('vcr.ttf');
+				Paths.DEFAULT_FONT = Paths.font('vcr.ttf');
 				Logger.log('Issue with loading ${Paths.font(pack.defaultFont)}, does it exist?', ERROR);
 			}
 		}
-		else currentFont = Paths.font('vcr.ttf');
+		else Paths.DEFAULT_FONT = Paths.font('vcr.ttf');
 		
 		// if (pack.stateRedirects.TitleState != null) TitleState.init();
 		

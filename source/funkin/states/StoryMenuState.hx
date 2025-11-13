@@ -69,7 +69,7 @@ class StoryMenuState extends MusicBeatState
 			
 			var rankText:FlxText = new FlxText(0, 10);
 			rankText.text = 'RANK: GREAT';
-			rankText.setFormat(funkin.Mods.currentFont, 32);
+			rankText.setFormat(Paths.DEFAULT_FONT, 32);
 			rankText.size = scoreText.size;
 			rankText.screenCenter(X);
 			

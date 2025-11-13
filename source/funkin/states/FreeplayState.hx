@@ -175,7 +175,7 @@ class FreeplayState extends MusicBeatState
 			final size:Int = 16;
 			
 			var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
-			text.setFormat(funkin.Mods.currentFont, size, FlxColor.WHITE, RIGHT);
+			text.setFormat(Paths.DEFAULT_FONT, size, FlxColor.WHITE, RIGHT);
 			text.scrollFactor.set();
 			add(text);
 			
@@ -184,7 +184,7 @@ class FreeplayState extends MusicBeatState
 			add(debugBG);
 			
 			debugTxt = new FlxText(25, 0, FlxG.width - 50, '', 32);
-			debugTxt.setFormat(funkin.Mods.currentFont, 32, FlxColor.WHITE, CENTER, OUTLINE_FAST, FlxColor.BLACK);
+			debugTxt.setFormat(Paths.DEFAULT_FONT, 32, FlxColor.WHITE, CENTER, OUTLINE_FAST, FlxColor.BLACK);
 			debugTxt.borderSize = 2;
 			debugTxt.screenCenter(Y);
 			add(debugTxt);

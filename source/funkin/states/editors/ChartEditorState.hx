@@ -525,7 +525,7 @@ class ChartEditorState extends MusicBeatState
 		// for (i in 0...tipTextArray.length) {
 		// 	var tipText:FlxText = new FlxText(UI_box.x, UI_box.y + UI_box.height + 8, 0, tipTextArray[i], 16);
 		// 	tipText.y += i * 12;
-		// 	tipText.setFormat(funkin.Mods.currentFont, 14, FlxColor.WHITE, LEFT/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
+		// 	tipText.setFormat(Paths.DEFAULT_FONT, 14, FlxColor.WHITE, LEFT/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 		// 	//tipText.borderSize = 2;
 		// 	tipText.scrollFactor.set();
 		// 	add(tipText);
@@ -551,7 +551,7 @@ class ChartEditorState extends MusicBeatState
 		add(prevRenderedNotes);
 		
 		// clickForInfo = new FlxText(UI_box.x + 20, UI_box.y + UI_box.height + 8, 0, 'Click for help!', 16);
-		// clickForInfo.setFormat(funkin.Mods.currentFont, 14, 0xFF8c8c8c, LEFT /*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
+		// clickForInfo.setFormat(Paths.DEFAULT_FONT, 14, 0xFF8c8c8c, LEFT /*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 		// clickForInfo.scrollFactor.set();
 		
 		// textBox = new FlxSprite().makeGraphic(Std.int(clickForInfo.width * 1.25), Std.int(clickForInfo.height * 1.25),
@@ -3409,7 +3409,7 @@ class ChartEditorState extends MusicBeatState
 				if (typeInt == null) theType = '?';
 				
 				var daText:AttachedFlxText = new AttachedFlxText(0, 0, 100, theType, 24);
-				daText.setFormat(funkin.Mods.currentFont, 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				daText.setFormat(Paths.DEFAULT_FONT, 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				daText.xAdd = -32;
 				daText.yAdd = 6;
 				daText.borderSize = 1;
@@ -3436,7 +3436,7 @@ class ChartEditorState extends MusicBeatState
 				if (note.eventLength > 1) text = note.eventLength + ' Events:\n' + note.eventName;
 				
 				var daText:AttachedFlxText = new AttachedFlxText(0, 0, 400, text, 12);
-				daText.setFormat(funkin.Mods.currentFont, 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+				daText.setFormat(Paths.DEFAULT_FONT, 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 				daText.xAdd = -410;
 				daText.borderSize = 1;
 				if (note.eventLength > 1) daText.yAdd += 8;
@@ -4094,7 +4094,7 @@ class AttachedFlxText extends FlxText
 // 		{
 // 			var size:Int = (i <= 3) ? 30 : 20;
 // 			var tipText:FlxText = new FlxText(0, 0, 0, tipTextArray[i], 16);
-// 			tipText.setFormat(funkin.Mods.currentFont, size, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+// 			tipText.setFormat(Paths.DEFAULT_FONT, size, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 // 			tipText.screenCenter(X);
 // 			tipText.y += (i * 14) - 25;
 // 			tipText.ID = i;

@@ -27,7 +27,7 @@ class PauseSubState extends MusicBeatSubstate
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 	
 	public static var instance:PauseSubState;
-
+	
 	var menuItems:Array<String> = [];
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
 	var difficultyChoices = [];
@@ -111,7 +111,7 @@ class PauseSubState extends MusicBeatSubstate
 			{
 				var t = new FlxText(0, 15, cam.width - 15, text, 32);
 				t.alignment = RIGHT;
-				t.setFormat(funkin.Mods.currentFont, 32);
+				t.setFormat(Paths.DEFAULT_FONT, 32);
 				t.scrollFactor.set();
 				corners.push(t);
 				if (addto) add(t);
@@ -309,10 +309,10 @@ class PauseSubState extends MusicBeatSubstate
 			}
 		}
 	}
-
+	
 	public function returnToMain()
 	{
-		if(scriptGroup.call('onExit',[]) != ScriptConstants.Function_Stop)
+		if (scriptGroup.call('onExit', []) != ScriptConstants.Function_Stop)
 		{
 			PlayState.deathCounter = 0;
 			PlayState.seenCutscene = false;
@@ -397,7 +397,7 @@ class PauseSubState extends MusicBeatSubstate
 			if (menuItems[i] == 'Skip Time')
 			{
 				skipTimeText = new FlxText(0, 0, 0, '', 64);
-				skipTimeText.setFormat(funkin.Mods.currentFont, 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				skipTimeText.setFormat(Paths.DEFAULT_FONT, 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				skipTimeText.scrollFactor.set();
 				skipTimeText.borderSize = 2;
 				skipTimeTracker = item;
