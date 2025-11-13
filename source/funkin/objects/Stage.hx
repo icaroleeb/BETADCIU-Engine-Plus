@@ -223,7 +223,10 @@ class Stage extends FlxTypedContainer<FlxBasic>
 		
 		// fuck you
 		@:nullSafety(Off)
-		startScript(scriptFile);
+		{
+			if(script != null)
+				startScript(scriptFile);
+		}
 		
 		#if VERBOSE_LOGS
 		if (script == null)
