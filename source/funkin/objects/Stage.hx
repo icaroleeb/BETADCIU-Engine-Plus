@@ -215,25 +215,21 @@ class Stage extends FlxTypedContainer<FlxBasic>
 		inline function tryScript(path:String):Null<String>
 		{
 			var scriptFile = FunkinScript.getPath(path);
-			return (FunkinAssets.exists(scriptFile) ? scriptFile : null);
+			return (FunkinAssets.exists(scriptFile, TEXT) ? scriptFile : null);
 		}
 		
 		// rlly rlly funny line here but yk what its ok
-		var scriptFile = tryScript(baseScriptFile) ?? tryScript('data/stages/$curStage') ?? tryScript('stages/$curStage/script') ?? tryScript('stages/$curStage');
-		
-		// fuck you
-		@:nullSafety(Off)
-		{
-			if(script != null)
-				startScript(scriptFile);
-		}
-		
-		#if VERBOSE_LOGS
-		if (script == null)
-		{
+		var scriptFile = tryScript(baseScriptFile) ?? tryScript('data/stages/$curStage') ?? tryScript('stages/$curStage/script') ?? tryScript('stages/$curStage') ?? tryScript('data/stages/stage');
+		trace(scriptFile);
+
+		if(scriptFile != null){
+			@:nullSafety(Off)
+			startScript(scriptFile);
+		} else {
+			#if VERBOSE_LOGS
 			Logger.log('$curStage is not scripted.');
+			#end
 		}
-		#end
 		
 		return script != null;
 	}

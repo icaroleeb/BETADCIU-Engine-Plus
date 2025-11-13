@@ -40,6 +40,10 @@ class TitleState extends MusicBeatState
 		FunkinAssets.cache.clearStoredMemory();
 		FunkinAssets.cache.clearUnusedMemory();
 		
+		// for some reason the plugin scripts dont run sometimes when first loaded. oh well
+		funkin.scripting.PluginsManager.prepareSignals();
+		funkin.scripting.PluginsManager.populate();
+
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
 			CoolUtil.setTransSkip();
