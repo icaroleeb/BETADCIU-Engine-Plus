@@ -4,6 +4,7 @@ import openfl.display.BitmapData;
 import openfl.display.Bitmap;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
+import openfl.Assets;
 import openfl.display.Sprite;
 
 import flixel.FlxG;
@@ -70,7 +71,7 @@ class DebugDisplay extends Sprite
 		textField = new TextField();
 		textField.selectable = false;
 		textField.mouseEnabled = false;
-		textField.defaultTextFormat = new TextFormat("_sans", 14, color);
+		textField.defaultTextFormat = new TextFormat(Assets.getFont("assets/fonts/aller.ttf").fontName, 14, color);
 		textField.autoSize = LEFT;
 		textField.multiline = true;
 		textField.text = "FPS: ";
