@@ -945,7 +945,11 @@ class PlayState extends MusicBeatState
 		var hscriptPath = FunkinScript.getPath('data/characters/$name');
 		if (!FunkinAssets.exists(hscriptPath, TEXT)) hscriptPath = FunkinScript.getPath('characters/$name');
 		
-		if (FunkinAssets.exists(hscriptPath, TEXT)) initFunkinScript(hscriptPath);
+		if (FunkinAssets.exists(hscriptPath, TEXT)) {
+			var script = initFunkinScript(hscriptPath);
+
+			script.set('parent', char);
+		}
 	}
 	
 	/**
@@ -2053,7 +2057,7 @@ class PlayState extends MusicBeatState
 				if (!cpuControlled) keyShit();
 				else if (boyfriend.holdTimer > Conductor.stepCrotchet * 0.0011 * boyfriend.singDuration
 					&& boyfriend.getAnimName().startsWith('sing')
-					&& !boyfriend.getAnimName().endsWith('miss')) boyfriend.dance();
+					&& !boyfriend.getAnimName().endsWith('miss')) boyfriend.dance(boyfriend.forceDance);
 			}
 			
 			notes.forEachAlive(function(daNote:Note) {
@@ -3107,7 +3111,7 @@ class PlayState extends MusicBeatState
 			
 			if (boyfriend.holdTimer > Conductor.stepCrotchet * 0.0011 * boyfriend.singDuration
 				&& boyfriend.getAnimName().startsWith('sing')
-				&& !boyfriend.getAnimName().endsWith('miss')) boyfriend.dance();
+				&& !boyfriend.getAnimName().endsWith('miss')) boyfriend.dance(boyfriend.forceDance);
 		}
 		
 		// TO DO: Find a better way to handle controller inputs, this should work for now

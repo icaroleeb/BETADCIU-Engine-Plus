@@ -243,7 +243,7 @@ class Character extends Bopper
 			addAnimByPrefix('idle', 'BF idle dance', 24, false);
 		}
 		
-		dance();
+		dance(forceDance);
 	}
 	
 	override function update(elapsed:Float)
@@ -260,18 +260,18 @@ class Character extends Bopper
 			if (animTimer <= 0)
 			{
 				animTimer = 0;
-				dance();
+				dance(forceDance);
 			}
 		}
 		
 		if (specialAnim && isAnimFinished())
 		{
 			specialAnim = false;
-			dance();
+			dance(forceDance);
 		}
 		else if (getAnimName().endsWith('miss') && isAnimFinished())
 		{
-			dance();
+			dance(forceDance);
 			finishAnim();
 		}
 		
@@ -283,7 +283,7 @@ class Character extends Bopper
 		
 		if (!isPlayer && holdTimer >= Conductor.stepCrotchet * 0.0011 * singDuration)
 		{
-			dance();
+			dance(forceDance);
 			holdTimer = 0;
 		}
 		
