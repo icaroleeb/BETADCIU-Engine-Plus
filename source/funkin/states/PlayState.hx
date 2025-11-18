@@ -1,7 +1,5 @@
 package funkin.states;
 
-import funkin.game.Countdown;
-
 import haxe.Timer;
 import haxe.ds.Vector;
 
@@ -24,6 +22,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.util.helpers.FlxBounds;
 import flixel.group.FlxContainer.FlxTypedContainer;
+import flixel.util.FlxStringUtil;
 
 import funkin.objects.Character;
 import funkin.backend.Difficulty;
@@ -45,6 +44,7 @@ import funkin.states.editors.*;
 import funkin.game.modchart.*;
 import funkin.backend.SyncedFlxSoundGroup;
 import funkin.game.StoryMeta;
+import funkin.game.Countdown;
 #if VIDEOS_ALLOWED
 import funkin.video.FunkinVideoSprite;
 #end
@@ -573,6 +573,17 @@ class PlayState extends MusicBeatState
 		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; // Reset to default
+		
+		#if FLX_DEBUG
+		FlxG.watch.addFunction('Conductor: ', () -> Conductor.songPosition);
+		FlxG.watch.addFunction('SongTime: ', () -> FlxStringUtil.formatTime(Conductor.songPosition / 1000)
+			+ ' / '
+			+ FlxStringUtil.formatTime(FlxG.sound.music.length / 1000));
+			
+		FlxG.watch.addFunction('curSec: ', () -> curSection);
+		FlxG.watch.addFunction('curBeat: ', () -> curBeat);
+		FlxG.watch.addFunction('curStep: ', () -> curStep);
+		#end
 		
 		keysArray = [
 			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_left')),
