@@ -32,7 +32,7 @@ class FlxMacro
 						],
 						expr: macro
 						{
-							this.frames = funkin.Paths.getSparrowAtlas(path);
+							this.frames = funkin.Paths.getAtlasFrames(path);
 							this.animation.addByPrefix(animName, animName, fps, looped);
 							this.animation.play(animName);
 							if (this.animation.curAnim == null || this.animation.curAnim.numFrames == 1)
