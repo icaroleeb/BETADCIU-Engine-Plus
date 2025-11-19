@@ -59,6 +59,7 @@ class CharacterParser
 		data.flip_x ??= baseInfo.flip_x;
 		data.healthicon ??= baseInfo.healthicon;
 		data.healthbar_colour ??= baseInfo.healthbar_colour;
+		data.vslice_sustains ??= baseInfo.vslice_sustains;
 		data.image ??= baseInfo.image;
 		data.dance_every ??= baseInfo.dance_every;
 		data.position ??= baseInfo.position;
@@ -333,6 +334,7 @@ class CharacterParser
 			flip_x: false,
 			healthicon: 'face',
 			healthbar_colour: FlxColor.GRAY,
+			vslice_sustains: false,
 			image: 'characters/BOYFRIEND',
 			dance_every: 2,
 			position: [0, 0],
@@ -464,6 +466,11 @@ typedef CharacterInfo =
 	 * The characters health colour.
 	 */
 	var healthbar_colour:Int;
+	
+	/**
+	 * If the character should hold the last frame during a sing pose
+	 */
+	var ?vslice_sustains:Bool;
 	
 	/**
 	 * How many beats between the characters `dance`

@@ -118,6 +118,7 @@ class Character extends Bopper
 	public var isPlayerInEditor:Null<Bool> = null;
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
+	public var originalVSliceSus = false;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
 	
@@ -134,6 +135,11 @@ class Character extends Bopper
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 	
 	public var healthColour:Int = FlxColor.RED;
+	
+	/**
+	 *	If enabled, the character's singing animation will stop at the last frame while holding a sustain note
+	 */
+	public var vSliceSustains = false;
 	
 	public function new(x:Float = 0, y:Float = 0, character:String = 'bf', isPlayer:Bool = false)
 	{
@@ -171,6 +177,7 @@ class Character extends Bopper
 		this.cameraPosition = json.camera_position;
 		
 		this.healthIcon = json.healthicon;
+		this.vSliceSustains = json.vslice_sustains;
 		this.singDuration = json.sing_duration;
 		this.noAntialiasing = json.no_antialiasing;
 		

@@ -91,6 +91,7 @@
                         <checkbox text="Flip X?" id="flipXCheckbox"/>
                         <checkbox text="Anti-aliasing?" id="antialiasingCheckbox"/>
                         <checkbox text="Scaled Offsets?" id="scaledOffsetsCheckbox" tooltip="If true, the character will have their offsets corrected at any scale."/>
+                        <checkbox text="VSlice Sustains?" id="vSliceSusCheckbox" tooltip="If true, the character will hold the last frame during a sustain note."/>
  
                         <spacer height="11"/>
 
