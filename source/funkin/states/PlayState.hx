@@ -855,8 +855,6 @@ class PlayState extends MusicBeatState
 		
 		noteskinLoading(skin);
 		
-		// if (ClientPrefs.noteSkin.contains('Quant') && noteSkin.data.hasQuants) noteskinLoading('QUANT$skin');
-		
 		NoteSkinHelper.instance?.destroy();
 		NoteSkinHelper.instance = noteSkin;
 		NoteSkinHelper.keys = SONG.keys;
@@ -2312,10 +2310,7 @@ class PlayState extends MusicBeatState
 					var lastAlpha:Float = dad.alpha;
 					dad.alpha = 0.00001;
 					dad = dadMap.get(name);
-					// if (!dad.curCharacter.startsWith('gf')){
-					// 	if (wasGf && gf != null) gf.visible = true;
-					// 	else if (gf != null) gf.visible = false;
-					// }
+
 					dad.alpha = lastAlpha;
 					for (field in playFields.members)
 						if (field.owner == oldChar) field.owner = dad;
