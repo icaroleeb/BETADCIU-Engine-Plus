@@ -66,6 +66,11 @@ class Bopper extends FlxSprite
 	 */
 	public var idleSuffix:String = '';
 	
+	/**
+	 * Used in conjunction with `playAnim`
+	 * 
+	 * If true, offsets will be scaled to match the current scale.
+	 */
 	public var scalableOffsets:Bool = false;
 	
 	//-----
@@ -92,8 +97,10 @@ class Bopper extends FlxSprite
 	 * 
 	 * If the path given is to a texture atlas, it will load a texture atlas
 	 * @param path 
+	 * 
+	 * @return this `Bopper` instance. Useful for chaining
 	 */
-	public function loadAtlas(path:String)
+	public function loadAtlas(path:String):Bopper
 	{
 		final isAtlasSprite = FunkinAssets.exists(Paths.getPath('images/$path/Animation.json', TEXT, null, true));
 		if (isAtlasSprite)
@@ -119,8 +126,12 @@ class Bopper extends FlxSprite
 				this.frames = frames;
 			}
 		}
+		return this;
 	}
 	
+	/**
+	 * Helper function to quickly set an anim offset
+	 */
 	public function addOffset(anim:String, x:Float = 0, y:Float = 0):Void
 	{
 		animOffsets[anim] = [x, y];
@@ -150,6 +161,10 @@ class Bopper extends FlxSprite
 		}
 	}
 	
+	/**
+	 * Use over `animation.play`
+	 */
+	@:inheritDoc(flixel.animation.FlxAnimationController.play)
 	public function playAnim(animToPlay:String, isForced:Bool = false, isReversed:Bool = false, frame:Int = 0):Void
 	{
 		if (!canPlayAnimations) return;
@@ -199,6 +214,9 @@ class Bopper extends FlxSprite
 		});
 	}
 	
+	/**
+	 * If false, This `Bopper` will be unable to dance
+	 */
 	public var canDance:Bool = true;
 	
 	/**
