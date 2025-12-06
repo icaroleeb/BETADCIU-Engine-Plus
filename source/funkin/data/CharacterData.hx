@@ -32,7 +32,7 @@ class CharacterParser
 		
 		if (raw.trim().length != 0 && charPath.endsWith('.xml')) return fromCNE(raw); // if it was a xml its cne
 		
-		final rawJson:Null<Any> = FunkinAssets.parseJson(raw);
+		final rawJson:Null<Any> = FunkinAssets.parseJson5(raw);
 		
 		// if (rawJson == null) throw 'failed to parse json at $charPath'; // perhaps instead of throwing i could return a dummy thats flagged as invalid..
 		

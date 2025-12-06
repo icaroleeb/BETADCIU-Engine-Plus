@@ -29,23 +29,24 @@ class WeekData
 	public static var weeksLoaded:Map<String, WeekData> = new Map<String, WeekData>();
 	public static var weeksList:Array<String> = [];
 	
-	public var folder:String = '';
+	static final _fields = Type.getInstanceFields(WeekData);
 	
 	// JSON variables
-	public var songs:Array<Dynamic>;
-	public var weekCharacters:Array<String>;
-	public var weekBackground:String;
-	public var weekBefore:String;
-	public var storyName:String;
-	public var weekName:String;
-	public var freeplayColor:Array<Int>;
-	public var startUnlocked:Bool;
-	public var hiddenUntilUnlocked:Bool;
-	public var hideStoryMode:Bool;
-	public var hideFreeplay:Bool;
-	public var difficulties:String;
+	public var songs:Array<Dynamic> = [];
+	public var weekCharacters:Array<String> = [];
+	public var weekBackground:String = '';
+	public var weekBefore:String = '';
+	public var storyName:String = '';
+	public var weekName:String = '';
+	public var freeplayColor:Array<Int> = [255, 255, 255];
+	public var startUnlocked:Bool = true;
+	public var hiddenUntilUnlocked:Bool = false;
+	public var hideStoryMode:Bool = false;
+	public var hideFreeplay:Bool = false;
+	public var difficulties:String = '';
 	
 	public var fileName:String;
+	public var folder:String = '';
 	
 	public static function createWeekFile():WeekFile
 	{
@@ -71,21 +72,15 @@ class WeekData
 		return weekFile;
 	}
 	
-	// HELP: Is there any way to convert a WeekFile to WeekData without having to put all variables there manually? I'm kind of a noob in haxe lmao
 	public function new(weekFile:WeekFile, fileName:String)
 	{
-		songs = weekFile.songs;
-		weekCharacters = weekFile.weekCharacters;
-		weekBackground = weekFile.weekBackground;
-		weekBefore = weekFile.weekBefore;
-		storyName = weekFile.storyName;
-		weekName = weekFile.weekName;
-		freeplayColor = weekFile.freeplayColor;
-		startUnlocked = weekFile.startUnlocked;
-		hiddenUntilUnlocked = weekFile.hiddenUntilUnlocked;
-		hideStoryMode = weekFile.hideStoryMode;
-		hideFreeplay = weekFile.hideFreeplay;
-		difficulties = weekFile.difficulties;
+		for (field in Reflect.fields(weekFile))
+		{
+			if (_fields.contains(field))
+			{
+				Reflect.setField(this, field, Reflect.field(weekFile, field));
+			}
+		}
 		
 		this.fileName = fileName;
 	}
@@ -95,45 +90,12 @@ class WeekData
 		weeksList = [];
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
-		var disabledMods:Array<String> = [];
-		var modsListPath:String = 'modsList.txt';
-		var directories:Array<String> = [Paths.mods(), Paths.getCorePath() #if ASSET_REDIRECT, 'assets/' #end];
+		var directories:Array<String> = [Paths.mods(), Paths.getCorePath()];
 		var originalLength:Int = directories.length;
-		if (FileSystem.exists(modsListPath))
-		{
-			var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);
-			for (i in 0...stuff.length)
-			{
-				var splitName:Array<String> = stuff[i].trim().split('|');
-				if (splitName[1] == '0') // Disable mod
-				{
-					disabledMods.push(splitName[0]);
-				}
-				else // Sort mod loading order based on modsList.txt file
-				{
-					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
-					// trace('trying to push: ' + splitName[0]);
-					if (sys.FileSystem.isDirectory(path)
-						&& !Mods.ignoreModFolders.contains(splitName[0])
-						&& !disabledMods.contains(splitName[0])
-						&& !directories.contains(path + '/'))
-					{
-						directories.push(path + '/');
-						// trace('pushed Directory: ' + splitName[0]);
-					}
-				}
-			}
-		}
 		
-		var modsDirectories:Array<String> = Mods.getModDirectories();
-		for (folder in modsDirectories)
+		for (mod in Mods.parseList().enabled)
 		{
-			var pathThing:String = haxe.io.Path.join([Paths.mods(), folder]) + '/';
-			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
-			{
-				directories.push(pathThing);
-				// trace('pushed Directory: ' + folder);
-			}
+			directories.push(Paths.mods(mod + '/'));
 		}
 		#else
 		var directories:Array<String> = [Paths.getCorePath()];
@@ -142,7 +104,8 @@ class WeekData
 		
 		var txtPath = Paths.getPath('data/weeks/weekList.txt');
 		if (!FunkinAssets.exists(txtPath)) txtPath = Paths.getPath('weeks/weekList.txt');
-		var sexList:Array<String> = CoolUtil.coolTextFile(txtPath);
+		
+		final sexList:Array<String> = CoolUtil.coolTextFile(txtPath);
 		
 		for (i in 0...sexList.length)
 		{
@@ -180,26 +143,26 @@ class WeekData
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i] + 'data/weeks/';
-			if (!FileSystem.exists(directory)) directory = directories[i] + 'weeks/';
+			if (!FunkinAssets.exists(directory)) directory = directories[i] + 'weeks/';
 			
-			if (FileSystem.exists(directory))
+			if (FunkinAssets.exists(directory))
 			{
 				var listOfWeeks:Array<String> = CoolUtil.coolTextFile(directory + 'weekList.txt');
 				for (daWeek in listOfWeeks)
 				{
 					var path:String = directory + daWeek + '.json';
-					if (sys.FileSystem.exists(path))
+					if (FunkinAssets.exists(path))
 					{
 						addWeek(daWeek, path, directories[i], i, originalLength);
 					}
 				}
 				
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FunkinAssets.readDirectory(directory))
 				{
-					var path = haxe.io.Path.join([directory, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json'))
+					final path = Path.join([directory, file]);
+					if (!FunkinAssets.isDirectory(path) && file.endsWith('.json'))
 					{
-						addWeek(file.substr(0, file.length - 5), path, directories[i], i, originalLength);
+						addWeek(file.withoutExtension(), path, directories[i], i, originalLength);
 					}
 				}
 			}
@@ -207,7 +170,7 @@ class WeekData
 		#end
 	}
 	
-	private static function addWeek(weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int)
+	static function addWeek(weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int)
 	{
 		if (!weeksLoaded.exists(weekToCheck))
 		{
@@ -230,31 +193,26 @@ class WeekData
 		}
 	}
 	
-	private static function getWeekFile(path:String):WeekFile
+	static function getWeekFile(path:String):WeekFile
 	{
 		final raw:Null<String> = FunkinAssets.exists(path, TEXT) ? FunkinAssets.getContent(path) : null;
 		
-		if (raw != null && raw.length > 0)
-		{
-			return cast Json.parse(raw);
-		}
-		return null;
+		return FunkinAssets.parseJson5(raw);
 	}
 	
 	//   FUNCTIONS YOU WILL PROBABLY NEVER NEED TO USE
 	// To use on PlayState.hx or Highscore stuff
 	public static function getWeekFileName():String
 	{
-		return weeksList[PlayState.storyMeta.curWeek];
+		return weeksList[PlayState.storyMeta.curWeek] ?? '';
 	}
 	
-	// Used on LoadingState, nothing really too relevant
-	public static function getCurrentWeek():WeekData
+	public static function getCurrentWeek():Null<WeekData>
 	{
 		return weeksLoaded.get(weeksList[PlayState.storyMeta.curWeek]);
 	}
 	
-	public static function setDirectoryFromWeek(?data:WeekData = null)
+	public static function setDirectoryFromWeek(?data:WeekData):Void
 	{
 		Mods.currentModDirectory = '';
 		if (data != null && data.folder != null && data.folder.length > 0)

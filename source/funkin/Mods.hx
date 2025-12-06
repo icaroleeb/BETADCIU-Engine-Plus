@@ -278,20 +278,8 @@ class Mods
 		currentModDirectory = '';
 		
 		#if MODS_ALLOWED
-		if (FileSystem.exists("modsList.txt"))
-		{
-			var list:Array<String> = CoolUtil.listFromString(File.getContent("modsList.txt"));
-			var foundTheTop = false;
-			for (i in list)
-			{
-				var dat = i.split("|");
-				if (dat[1] == "1" && !foundTheTop)
-				{
-					foundTheTop = true;
-					currentModDirectory = dat[0];
-				}
-			}
-		}
+		var list:Array<String> = Mods.parseList().enabled;
+		if (list != null && list[0] != null) Mods.currentModDirectory = list[0];
 		
 		currentMod = loadTopModConfig();
 		#end

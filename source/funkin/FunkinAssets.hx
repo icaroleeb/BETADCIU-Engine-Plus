@@ -40,6 +40,26 @@ class FunkinAssets
 	}
 	
 	/**
+	 * Parses a json using the json5 format.
+	 */
+	public static function parseJson5(content:String, ?pos:haxe.PosInfos):Null<Any>
+	{
+		try
+		{
+			#if json5hx
+			return haxe.Json5.parse(content);
+			#else
+			return haxe.Json.parse(content);
+			#end
+		}
+		catch (e)
+		{
+			Logger.log('failed to parse content\nException: ${e.message}', WARN, false, pos);
+			return null;
+		}
+	}
+	
+	/**
 	 * Retrieves the Bytes of a given file from its path
 	 */
 	public static function getBytes(path:String):Bytes

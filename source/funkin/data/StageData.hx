@@ -225,7 +225,7 @@ class StageData
 		var path = getStageFromDir('data/stages', stage);
 		if (!FunkinAssets.exists(path, TEXT)) path = getStageFromDir('stages', stage);
 		
-		return FunkinAssets.exists(path, TEXT) ? cast FunkinAssets.parseJson(FunkinAssets.getContent(path)) : null;
+		return FunkinAssets.exists(path, TEXT) ? cast FunkinAssets.parseJson5(FunkinAssets.getContent(path)) : null;
 	}
 	
 	public static function getTemplateStageFile():StageFile return

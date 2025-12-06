@@ -26,7 +26,6 @@
             "zIndex": 2
         },
         {
-            "id": "front",
             "asset": "stagecurtains",
             "scrollFactor": [ 1.1, 1.1 ],
             "position": [ -600, -300 ],
