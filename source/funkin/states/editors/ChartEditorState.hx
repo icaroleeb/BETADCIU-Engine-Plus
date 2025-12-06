@@ -381,9 +381,10 @@ class ChartEditorState extends MusicBeatState
 		bg.color = 0xFF222222;
 		add(bg);
 		
-		gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height * 8, [0x0, ClientPrefs.editorGradColors[0], ClientPrefs.editorGradColors[1], 0x0]);
+		gradient = FlxGradient.createGradientFlxSprite(1, FlxG.height * 8, [0x0, ClientPrefs.editorGradColors[0], ClientPrefs.editorGradColors[1], 0x0]);
 		// gradient.setPosition(0, ((FlxG.height * 4) * -1));
 		gradient.scrollFactor.set(0, 0);
+		gradient.scale.x = FlxG.width;
 		gradient.updateHitbox();
 		gradient.visible = ClientPrefs.editorGradVis;
 		// gradient.alpha = 1;
@@ -960,13 +961,16 @@ class ChartEditorState extends MusicBeatState
 			ClientPrefs.editorGradColors[1] = FlxColor.fromRGB(grad2Colors[0], grad2Colors[1], grad2Colors[2]);
 			ClientPrefs.flush();
 			
+			gradient?.destroy();
 			remove(gradient);
-			gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height * 8, [
+			gradient = FlxGradient.createGradientFlxSprite(1, FlxG.height * 8, [
 				0x0,
 				FlxColor.fromRGB(grad1Colors[0], grad1Colors[1], grad1Colors[2]),
 				FlxColor.fromRGB(grad2Colors[0], grad2Colors[1], grad2Colors[2]),
 				0x0
 			]);
+			gradient.scale.x = FlxG.width;
+			gradient.updateHitbox();
 			gradient.scrollFactor.set();
 			insert(members.indexOf(shit), gradient);
 		});
@@ -2012,26 +2016,33 @@ class ChartEditorState extends MusicBeatState
 					var newZ = FlxG.camera.zoom - (0.125 * change);
 					FlxTween.tween(FlxG.camera, {zoom: newZ}, 0.325, {ease: FlxEase.quadOut});
 					for (s in [bg, gradient])
-						FlxTween.tween(s.scale, {x: 1 / newZ, y: 1 / newZ}, 0.325,
+					{
+						final x = (s == gradient ? FlxG.width : 1);
+						FlxTween.tween(s.scale, {x: x / newZ, y: 1 / newZ}, 0.325,
 							{
 								onUpdate: (t) -> {
 									bg.screenCenter();
 								},
 								ease: FlxEase.quadOut
 							});
+					}
 				}
 				
 				if (lanes <= 5 && change == -1)
 				{
 					FlxTween.tween(FlxG.camera, {zoom: 1}, 0.325, {ease: FlxEase.quadOut});
 					for (s in [bg, gradient])
-						FlxTween.tween(s.scale, {x: 1, y: 1}, 0.325,
+					{
+						final x = (s == gradient ? FlxG.width : 1);
+						
+						FlxTween.tween(s.scale, {x: x, y: 1}, 0.325,
 							{
 								onUpdate: (t) -> {
 									bg.screenCenter();
 								},
 								ease: FlxEase.quadOut
 							});
+					}
 				}
 			}
 			else if (wname == 'song_keys')
@@ -2144,7 +2155,7 @@ class ChartEditorState extends MusicBeatState
 		{
 			gradient.y = 100;
 		}
-		gradient.y = FlxMath.lerp(gradient.y, gradient.y - 10, FlxMath.bound(elapsed * 3, 0, 1));
+		gradient.y = FlxMath.lerp(gradient.y, gradient.y - 10, 1 - Math.exp(-elapsed * 3));
 		
 		if (FlxG.sound.music.time < 0)
 		{
