@@ -63,6 +63,8 @@ class FunkinCache
 		// 	}
 		// }
 		
+		Paths.tempAtlasFramesCache.clear();
+		
 		// clear all sounds that are cached
 		for (key in currentTrackedSounds.keys())
 		{
@@ -88,8 +90,6 @@ class FunkinCache
 				removeFromCache(key);
 			}
 		}
-		
-		Paths.tempAtlasFramesCache.clear();
 		
 		openfl.system.System.gc();
 		#if cpp

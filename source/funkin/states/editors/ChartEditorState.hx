@@ -2839,13 +2839,15 @@ class ChartEditorState extends MusicBeatState
 	
 	function reloadGridLayer()
 	{
+		gridLayer.forEach(spr -> spr?.destroy());
 		gridLayer.clear();
 		
-		remove(strumLine);
-		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(GRID_SIZE * ((_song.keys * _song.lanes) + 1)), 4);
-		
-		final idx = strumLineNotes != null ? members.indexOf(strumLineNotes) : 0;
-		insert(idx, strumLine);
+		if (strumLine == null)
+		{
+			strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(GRID_SIZE * ((_song.keys * _song.lanes) + 1)), 4);
+			final idx = strumLineNotes != null ? members.indexOf(strumLineNotes) : 0;
+			insert(idx, strumLine);
+		}
 		
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * ((_song.keys * _song.lanes) + 1), Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]), true,
 			ClientPrefs.editorBoxColors[0], ClientPrefs.editorBoxColors[1]);
@@ -3343,6 +3345,14 @@ class ChartEditorState extends MusicBeatState
 	
 	function updateGrid():Void
 	{
+		curRenderedNotes.forEach(spr -> spr?.destroy());
+		curRenderedSustains.forEach(spr -> spr?.destroy());
+		curRenderedNoteType.forEach(spr -> spr?.destroy());
+		nextRenderedNotes.forEach(spr -> spr?.destroy());
+		nextRenderedSustains.forEach(spr -> spr?.destroy());
+		prevRenderedNotes.forEach(spr -> spr?.destroy());
+		prevRenderedSustains.forEach(spr -> spr?.destroy());
+		
 		curRenderedNotes.clear();
 		curRenderedSustains.clear();
 		curRenderedNoteType.clear();
@@ -3374,6 +3384,7 @@ class ChartEditorState extends MusicBeatState
 		
 		if (skin != null)
 		{
+			NoteSkinHelper.instance?.destroy();
 			NoteSkinHelper.keys = _song.keys;
 			NoteSkinHelper.instance = skin;
 		}
