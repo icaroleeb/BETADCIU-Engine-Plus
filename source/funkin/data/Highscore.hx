@@ -82,7 +82,7 @@ class Highscore
 	
 	public static function formatSong(song:String, diff:Int):String
 	{
-		return Paths.sanitize(song) + Difficulty.getDifficultyFilePath(diff);
+		return Paths.sanitize(song) + '-' + Difficulty.getDifficultyFilePath(diff);
 	}
 	
 	public static function getScore(song:String, diff:Int):Int

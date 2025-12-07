@@ -3868,7 +3868,7 @@ class ChartEditorState extends MusicBeatState
 		try
 		{
 			final songName = Paths.sanitize(song);
-			PlayState.SONG = Chart.fromPath(Paths.json('$songName/$songName${Difficulty.getDifficultyFilePath()}'));
+			PlayState.SONG = Chart.fromPath(Paths.json('$songName/${Difficulty.getDifficultyFilePath()}'));
 		}
 		catch (e)
 		{

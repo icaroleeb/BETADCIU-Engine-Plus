@@ -41,14 +41,6 @@ class Difficulty
 			return Paths.sanitize(defaultDifficulty);
 		}
 		
-		if (fileSuffix != defaultDifficulty)
-		{
-			fileSuffix = '-' + fileSuffix;
-		}
-		else
-		{
-			fileSuffix = '';
-		}
 		return Paths.sanitize(fileSuffix);
 	}
 	
