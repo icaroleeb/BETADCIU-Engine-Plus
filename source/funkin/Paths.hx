@@ -172,8 +172,10 @@ class Paths
 	
 	public static inline function voices(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
 	{
-		var songKey:String = '${sanitize(song)}/Voices';
-		if (FunkinAssets.isDirectory(getPath('songs/${sanitize(song)}/audio', null, checkMods))) songKey = '${sanitize(song)}/audio/Voices';
+		var name = sanitize(song);
+		
+		var songKey:String = '$name/Voices';
+		if (FunkinAssets.isDirectory(getPath('songs/$name/audio', null, checkMods))) songKey = '$name/audio/Voices';
 		
 		if (postFix != null) songKey += '-$postFix';
 		
@@ -184,8 +186,10 @@ class Paths
 	
 	public static inline function inst(song:String, ?postFix:String, checkMods:Bool = true):Null<openfl.media.Sound>
 	{
-		var songKey:String = '${sanitize(song)}/Inst';
-		if (FunkinAssets.isDirectory(getPath('songs/${sanitize(song)}/audio', null, checkMods))) songKey = '${sanitize(song)}/audio/Inst';
+		var name = sanitize(song);
+		
+		var songKey:String = '$name/Inst';
+		if (FunkinAssets.isDirectory(getPath('songs/$name/audio', null, checkMods))) songKey = '$name/audio/Inst';
 		
 		if (postFix != null) songKey += '-$postFix';
 		
