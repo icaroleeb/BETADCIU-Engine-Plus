@@ -16,19 +16,26 @@ class NoteSettingsSubState extends BaseOptionsMenu
 			'Vanilla', ['Vanilla', 'Quants', 'QuantStep']); // Default value
 		addOption(option);
 		
-		var option:Option = new Option('Customize', 'Change your note colours\n[Press Enter]', '', 'button', true);
-		option.callback = function() {
-			switch (ClientPrefs.noteSkin)
-			{
-				case 'Quants':
-					openSubState(new QuantNotesSubState());
-				case 'QuantStep':
-					openSubState(new QuantNotesSubState());
-				default:
-					openSubState(new NotesSubState());
-			}
-		}
+		var option:Option = new Option('Note Splashes', "If unchecked, hitting \"Sick!\" or \"Kutty!\" notes won't show particles.", 'noteSplashes', 'bool', true);
 		addOption(option);
+		
+		var option:Option = new Option('Opponent Notes', 'If unchecked, opponent notes get hidden.', 'opponentStrums', 'bool', true);
+		addOption(option);
+		
+		// temporarily disabled
+		// var option:Option = new Option('Customize', 'Change your note colours\n[Press Enter]', '', 'button', true);
+		// option.callback = function() {
+		// 	switch (ClientPrefs.noteSkin)
+		// 	{
+		// 		case 'Quants':
+		// 			openSubState(new QuantNotesSubState());
+		// 		case 'QuantStep':
+		// 			openSubState(new QuantNotesSubState());
+		// 		default:
+		// 			openSubState(new NotesSubState());
+		// 	}
+		// }
+		// addOption(option);
 		
 		super();
 	}

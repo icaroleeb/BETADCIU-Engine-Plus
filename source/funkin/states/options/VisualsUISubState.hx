@@ -1,7 +1,6 @@
 package funkin.states.options;
 
 import funkin.states.options.Option;
-import funkin.backend.DebugDisplay;
 
 import flixel.FlxG;
 
@@ -11,9 +10,6 @@ class VisualsUISubState extends BaseOptionsMenu
 	{
 		title = 'Visuals and UI';
 		rpcTitle = 'Visuals & UI Settings Menu'; // for Discord Rich Presence
-		
-		var option:Option = new Option('Note Splashes', "If unchecked, hitting \"Sick!\" notes won't show particles.", 'noteSplashes', 'bool', true);
-		addOption(option);
 		
 		var option:Option = new Option('Hide HUD', 'If checked, hides most HUD elements.', 'hideHud', 'bool', false);
 		addOption(option);
@@ -41,12 +37,6 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-		
-		#if !mobile
-		var option:Option = new Option('FPS Counter', 'If unchecked, hides FPS Counter.', 'showFPS', 'bool', true);
-		addOption(option);
-		option.onChange = onChangeFPSCounter;
-		#end
 		
 		var option:Option = new Option('Pause Screen Song:', "What song do you prefer for the Pause Screen?", 'pauseMusic', 'string', 'Tea Time', ['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
@@ -76,11 +66,4 @@ class VisualsUISubState extends BaseOptionsMenu
 		if (changedMusic && !OptionsState.onPlayState) FunkinSound.playMusic(Paths.music('freakyMenu'));
 		super.destroy();
 	}
-	
-	#if !mobile
-	function onChangeFPSCounter()
-	{
-		if (DebugDisplay.instance != null) DebugDisplay.instance.visible = ClientPrefs.showFPS;
-	}
-	#end
 }

@@ -674,7 +674,7 @@ class ChartEditorState extends MusicBeatState
 		
 		var loadEventJson:FlxButton = new FlxButton(loadAutosaveBtn.x, loadAutosaveBtn.y + 30, 'Load Events', function() {
 			var songName:String = Paths.sanitize(_song.song);
-			var file:String = Paths.json(songName + '/events');
+			var file:String = Paths.json(songName + '/data/events');
 			
 			if (FunkinAssets.exists(file, TEXT))
 			{

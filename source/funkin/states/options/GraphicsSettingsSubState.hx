@@ -4,6 +4,8 @@ import flixel.text.FlxText;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
+import funkin.backend.DebugDisplay;
+
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
 	public function new()
@@ -38,6 +40,12 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
 		
+		#if !mobile
+		var option:Option = new Option('FPS Counter', 'If unchecked, hides FPS Counter.', 'showFPS', 'bool', true);
+		addOption(option);
+		option.onChange = onChangeFPSCounter;
+		#end
+		
 		super();
 	}
 	
@@ -67,4 +75,11 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			FlxG.updateFramerate = ClientPrefs.framerate;
 		}
 	}
+	
+	#if !mobile
+	function onChangeFPSCounter()
+	{
+		if (DebugDisplay.instance != null) DebugDisplay.instance.visible = ClientPrefs.showFPS;
+	}
+	#end
 }
