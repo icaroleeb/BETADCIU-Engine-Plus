@@ -300,17 +300,20 @@ class StoryMenuState extends MusicBeatState
 				songArray.push(leWeek[i][0]);
 			}
 			
-			// Nevermind that's stupid lmao
-			PlayState.storyMeta.playlist = songArray;
-			PlayState.isStoryMode = true;
 			selectedWeek = true;
 			
 			var diffic = Difficulty.getDifficultyFilePath(curDifficulty);
 			if (diffic == null) diffic = '';
 			
-			PlayState.storyMeta.difficulty = curDifficulty;
+			var ret = PlayState.prepareForWeek(songArray, curDifficulty, true);
 			
-			PlayState.SONG = Chart.fromSong(PlayState.storyMeta.playlist[0], PlayState.storyMeta.difficulty);
+			if (ret != null)
+			{
+				Logger.log('Failed to load week. \nException: $ret');
+				
+				selectedWeek = false;
+				return;
+			}
 			
 			PlayState.storyMeta.score = 0;
 			PlayState.storyMeta.misses = 0;

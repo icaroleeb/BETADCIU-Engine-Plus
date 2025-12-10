@@ -91,6 +91,28 @@ class PlayState extends MusicBeatState
 	 * 
 	 * will return null if done successfully. Otherwise, the exception will be returned.
 	 */
+	public static function prepareForWeek(songs:Array<String>, difficulty:Int = 1, isStoryMode:Bool = false):Null<haxe.Exception>
+	{
+		try
+		{
+			PlayState.SONG = Chart.fromSong(songs[0], difficulty);
+			PlayState.storyMeta.playlist = songs;
+			PlayState.storyMeta.difficulty = difficulty;
+			PlayState.isStoryMode = isStoryMode;
+			return null;
+		}
+		catch (e)
+		{
+			// Logger.log('Failed to prepare for song.\nException $e', ERROR);
+			return e;
+		}
+	}
+	
+	/**
+	 * Helper function to ready PlayState for conveniently.
+	 * 
+	 * will return null if done successfully. Otherwise, the exception will be returned.
+	 */
 	public static function prepareForSong(songName:String, difficulty:Int = 1, isStoryMode:Bool = false):Null<haxe.Exception>
 	{
 		try
