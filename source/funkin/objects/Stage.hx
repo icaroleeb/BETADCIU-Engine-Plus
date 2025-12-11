@@ -143,7 +143,8 @@ class Stage extends FlxTypedContainer<FlxBasic>
 				if (info.id != null)
 				{
 					final objId = info.id ?? ''; // we null checked already but to shut up null safety
-					if (objects.exists(info.id))
+					final objToLower = objId.toLowerCase();
+					if (objects.exists(objId) || objToLower == 'gf' || objToLower == 'dad' || objToLower == 'boyfriend')
 					{
 						Logger.log('Object cannot use id($objId) as it is in use.', WARN, true);
 					}
