@@ -2992,7 +2992,9 @@ class PlayState extends MusicBeatState
 	public var showRating:Bool = true;
 	
 	function popUpScore(note:Note = null):Void
-	{
+	{	
+		if(note.hitCausesMiss) return;
+		
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.ratingOffset);
 		
 		vocals.playerVolume = 1 * volumeMult;
@@ -3478,7 +3480,7 @@ class PlayState extends MusicBeatState
 	
 	function spawnNoteSplashOnNote(note:Note)
 	{
-		if (ClientPrefs.noteSplashes && note != null)
+		if (ClientPrefs.noteSplashes && note != null && !note.hitCausesMiss)
 		{
 			final strum:Null<StrumNote> = note.playField.members[note.noteData];
 			if (strum != null) spawnNoteSplash(strum.x, strum.y, note.noteData, note);
