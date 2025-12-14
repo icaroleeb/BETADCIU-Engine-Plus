@@ -132,13 +132,15 @@ class PsychHUD extends BaseHUD
 		scoreTxt.text = '${tempScore}\n';
 	}
 	
+	var scoreTextTwn:Null<FlxTween> = null;
+	
 	public function doScoreBop():Void
 	{
 		if (!ClientPrefs.scoreZoom) return;
 		
-		FlxTween.cancelTweensOf(scoreTxt);
+		scoreTextTwn?.cancel();
 		scoreTxt.scale.set(1.075, 1.075);
-		FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2);
+		scoreTextTwn = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2);
 	}
 	
 	public function updateIconsPosition()
