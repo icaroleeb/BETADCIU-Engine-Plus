@@ -423,7 +423,7 @@ class DropShadowShader extends FlxShader
 
       void main()
       {
-        vec4 col = texture2D(bitmap, openfl_TextureCoordv);
+        vec4 col = flixel_texture2D(bitmap, openfl_TextureCoordv);
 
         vec3 unpremultipliedColor = col.a > 0.0 ? col.rgb / col.a : col.rgb;
 
