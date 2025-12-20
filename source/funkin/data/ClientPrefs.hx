@@ -242,7 +242,7 @@ class ClientPrefs
 		FlxG.save.flush();
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'ninjamuffin99'); // Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
+		save.bind('controls_v2', 'nmvTeam'); // Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
 		save.data.customControls = keyBinds;
 		save.close();
 	}
@@ -274,13 +274,20 @@ class ClientPrefs
 		}
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'ninjamuffin99');
-		if (save != null && save.data.customControls != null)
+		save.bind('controls_v2', 'nmvTeam');
+		if (save != null)
 		{
-			CoolUtil.copyMapValues(save.data.customControls, keyBinds);
-			
-			reloadControls();
+			try
+			{
+				if (save.data.customControls != null) CoolUtil.copyMapValues(save.data.customControls, keyBinds);
+			}
+			catch (e:haxe.Exception)
+			{
+				trace(e);
+			}
 		}
+		reloadControls();
+		
 		save.destroy();
 	}
 	

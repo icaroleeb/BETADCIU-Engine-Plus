@@ -438,9 +438,12 @@ class Character extends Bopper
 	
 	override function destroy()
 	{
-		for (i in ghostTweenGrp)
-			i?.cancel();
-			
+		if (ghostTweenGrp != null && ghostTweenGrp.length > 0)
+		{
+			for (i in ghostTweenGrp)
+				i?.cancel();
+		}
+		
 		ghostTweenGrp = FlxDestroyUtil.destroyArray(ghostTweenGrp);
 		
 		doubleGhosts = FlxDestroyUtil.destroyArray(doubleGhosts);
