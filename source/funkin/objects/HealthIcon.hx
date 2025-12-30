@@ -31,6 +31,24 @@ class HealthIcon extends FlxSprite
 	 */
 	var isPlayer:Bool = false;
 	
+	/** 
+	 * Used for dividing icon based on how many frames it has
+	**/
+	public var frameCount(default, set):Int = 2;
+	
+	public function set_frameCount(value:Int)
+	{
+		frameCount = value;
+		changeIcon(characterName, true);
+		
+		return value;
+	}
+	
+	/**
+	 * Bool that controls whether or not the frame setting is handled automatically
+	**/
+	public var updateFrames:Bool = true;
+	
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
@@ -49,9 +67,9 @@ class HealthIcon extends FlxSprite
 	/**
 	 * Attempts to load a new icon by file name
 	 */
-	public function changeIcon(char:String):Void
+	public function changeIcon(char:String, overide:Bool = false):Void
 	{
-		if (this.characterName == char) return;
+		if (this.characterName == char && !overide) return;
 		
 		this.characterName = char;
 		
@@ -61,12 +79,16 @@ class HealthIcon extends FlxSprite
 		
 		final graphic = Paths.image(name, null, false);
 		
-		loadGraphic(graphic, true, Math.floor(graphic.width / 2), Math.floor(graphic.height));
+		loadGraphic(graphic, true, Math.floor(graphic.width / frameCount), Math.floor(graphic.height));
 		iconOffsets[0] = (width - 150) / 2;
 		iconOffsets[1] = (width - 150) / 2;
 		updateHitbox();
 		
-		animation.add(char, [0, 1], 0, false, isPlayer);
+		var c = [];
+		for (i in 0...frameCount)
+			c.push(i);
+			
+		animation.add(char, c, 0, false, isPlayer);
 		animation.play(char); // i do plan on adding more functionality to icons at a later date
 		
 		antialiasing = char.endsWith('-pixel') ? false : ClientPrefs.globalAntialiasing;
@@ -90,6 +112,8 @@ class HealthIcon extends FlxSprite
 	 */
 	public inline function updateIconAnim(health:Float):Void
 	{
+		if (!updateFrames) return;
+		
 		animation.frameIndex = health < 0.2 ? 1 : 0;
 	}
 }

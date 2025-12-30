@@ -21,4 +21,6 @@ class FlxSoundEx extends FlxSound
 			
 		if (_channel != null) _channel.soundTransform = _transform;
 	}
+
+    public var streamed:Bool = false;
 }

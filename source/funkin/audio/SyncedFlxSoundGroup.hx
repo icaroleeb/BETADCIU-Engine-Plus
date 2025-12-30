@@ -1,4 +1,4 @@
-package funkin.backend;
+package funkin.audio;
 
 import flixel.util.FlxSignal;
 import flixel.group.FlxGroup.FlxTypedGroup;

@@ -203,8 +203,6 @@ class Note extends FlxSprite
 		{
 			switch (value)
 			{
-				case "Test Owner Note":
-					owner = PlayState.instance.gf;
 				case 'Hurt Note':
 					ignoreNote = mustPress;
 					missHealth = isSustainNote ? 0.1 : 0.3;

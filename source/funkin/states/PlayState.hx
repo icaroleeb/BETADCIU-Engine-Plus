@@ -42,9 +42,9 @@ import funkin.states.*;
 import funkin.states.substates.*;
 import funkin.states.editors.*;
 import funkin.game.modchart.*;
-import funkin.backend.SyncedFlxSoundGroup;
 import funkin.game.StoryMeta;
 import funkin.game.Countdown;
+import funkin.audio.SyncedFlxSoundGroup;
 #if VIDEOS_ALLOWED
 import funkin.video.FunkinVideoSprite;
 #end
@@ -1403,7 +1403,16 @@ class PlayState extends MusicBeatState
 		
 		previousFrameTime = FlxG.game.ticks;
 		
-		FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+        if(ClientPrefs.streamedMusic){
+            try{
+                var sound = FunkinSound.streamFromBytes(Paths.instPath(PlayState.SONG.song));
+                FlxG.sound.music = sound;
+            } catch(e) {
+                FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+            }
+        } else 
+            FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+
 		FlxG.sound.music.onComplete = finishSong.bind(false);
 		vocals.play();
 		vocals.volume = 1 * volumeMult;
@@ -1515,11 +1524,35 @@ class PlayState extends MusicBeatState
 		
 		if (SONG.needsVoices)
 		{
-			final playerSound = Paths.voices(PlayState.SONG.song, 'player') ?? Paths.voices(PlayState.SONG.song, null);
-			if (playerSound != null) vocals.addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
-			
-			final opponentSound = Paths.voices(PlayState.SONG.song, 'opp');
-			if (opponentSound != null) vocals.addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
+            inline function loadSong()
+            {
+                final playerSound = Paths.voices(PlayState.SONG.song, 'player') ?? Paths.voices(PlayState.SONG.song, null);
+                if (playerSound != null) vocals.addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
+                
+                final opponentSound = Paths.voices(PlayState.SONG.song, 'opp');
+                if (opponentSound != null) vocals.addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
+            }
+
+            if(ClientPrefs.streamedMusic)
+            {
+                try{
+                    var playerPath = Paths.voicesPath(PlayState.SONG.song, 'player');
+                    if(!FunkinAssets.exists(playerPath)) playerPath = Paths.voicesPath(PlayState.SONG.song);
+
+                    final playerSound = FunkinSound.streamFromBytes(playerPath);
+
+                    var opponentPath = Paths.voicesPath(PlayState.SONG.song, 'opp');
+                    final opponentSound = FunkinSound.streamFromBytes(opponentPath);
+
+                    if(playerSound != null) vocals.addPlayerVocals(playerSound);
+                    if(opponentSound != null) vocals.addPlayerVocals(opponentSound);
+                } catch(e:haxe.Exception) {
+                    trace(e);
+                    loadSong();
+                }
+            } else 
+                loadSong();
+            
 		}
 		#if FLX_PITCH
 		FlxG.sound.music.pitch = playbackRate;
@@ -2992,8 +3025,8 @@ class PlayState extends MusicBeatState
 	public var showRating:Bool = true;
 	
 	function popUpScore(note:Note = null):Void
-	{	
-		if(note.hitCausesMiss) return;
+	{
+		if (note.hitCausesMiss) return;
 		
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.ratingOffset);
 		
@@ -3238,18 +3271,21 @@ class PlayState extends MusicBeatState
 		totalPlayed++;
 		RecalculateRating(field.playerControls);
 		
-		var char:Character = field.owner;
-		if (daNote.gfNote) char = gf;
-		
-		if (char != null && !daNote.noMissAnimation)
+		for (owner in field.singers)
 		{
-			if (char.animTimer <= 0)
+			var char:Character = owner;
+			if (daNote.gfNote) char = gf;
+			
+			if (char != null && !daNote.noMissAnimation)
 			{
-				var daAlt = '';
-				if (daNote.noteType == 'Alt Animation') daAlt = '-alt';
-				
-				var animToPlay:String = noteSkin.data.singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daAlt;
-				char.playAnim(animToPlay, true);
+				if (char.animTimer <= 0)
+				{
+					var daAlt = '';
+					if (daNote.noteType == 'Alt Animation') daAlt = '-alt';
+					
+					var animToPlay:String = noteSkin.data.singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daAlt;
+					char.playAnim(animToPlay, true);
+				}
 			}
 		}
 		
@@ -3352,78 +3388,83 @@ class PlayState extends MusicBeatState
 				scripts.call('extraNoteHitPre', [note, field.ID]);
 		}
 		
-		final char:Null<Character> = note.gfNote ? gf : note.owner ?? field.owner;
-		
-		if (char != null)
-		{
-			if (!note.hitCausesMiss)
+		// final char:Null<Character> = note.gfNote ? gf : note.owner ?? field.owner;
+		var chars:Array<Dynamic> = note.gfNote ? [gf] : field.singers;
+        if(note.owner != null) chars = [note.owner];
+
+		for (char in chars)
+		{			
+			if (char != null)
 			{
-				if (!note.noAnimation)
+				if (!note.hitCausesMiss)
 				{
-					final animSuffix = (note.noteType == 'Alt Animation' || SONG.notes[curSection]?.altAnim) ? '-alt' : '';
-					
-					final animToPlay = noteSkin.data.singAnimations[Std.int(Math.abs(note.noteData))] + animSuffix;
-					
-					char.holdTimer = 0;
-					
-					// ghost stuff
-					final chord = noteRows[note.mustPress ? 0 : 1][note.row];
-					
-					if (!(char.vSliceSustains && note.isSustainNote))
+					if (!note.noAnimation)
 					{
-						if (ClientPrefs.jumpGhosts && char.ghostsEnabled && chord != null && chord.length > 1 && note.noteType != "Ghost Note")
+						final animSuffix = (note.noteType == 'Alt Animation' || SONG.notes[curSection]?.altAnim) ? '-alt' : '';
+						
+						final animToPlay = noteSkin.data.singAnimations[Std.int(Math.abs(note.noteData))] + animSuffix;
+						
+						char.holdTimer = 0;
+						
+						// ghost stuff
+						final chord = noteRows[note.mustPress ? 0 : 1][note.row];
+						
+						if (!(char.vSliceSustains && note.isSustainNote))
 						{
-							final animNote = chord[0];
-							final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + animSuffix;
-							
-							if (char.mostRecentRow != note.row) char.playAnim(realAnim, true);
-							
-							if (note.nextNote != null && note.prevNote != null)
+							if (ClientPrefs.jumpGhosts && char.ghostsEnabled && chord != null && chord.length > 1 && note.noteType != "Ghost Note")
 							{
-								if (note != animNote
-									&& !note.nextNote.isSustainNote
-									&& scripts.call('onGhostAnim', [animToPlay, note]) != ScriptConstants.Function_Stop)
+								final animNote = chord[0];
+								final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + animSuffix;
+								
+								if (char.mostRecentRow != note.row) char.playAnim(realAnim, true);
+								
+								if (note.nextNote != null && note.prevNote != null)
 								{
-									char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+									if (note != animNote
+										&& !note.nextNote.isSustainNote
+										&& scripts.call('onGhostAnim', [animToPlay, note]) != ScriptConstants.Function_Stop)
+									{
+										char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+									}
+									else if (note.nextNote.isSustainNote)
+									{
+										char.playAnim(realAnim, true);
+										char.playGhostAnim(chord.indexOf(note), animToPlay, true);
+									}
 								}
-								else if (note.nextNote.isSustainNote)
-								{
-									char.playAnim(realAnim, true);
-									char.playGhostAnim(chord.indexOf(note), animToPlay, true);
-								}
+								char.mostRecentRow = note.row;
 							}
-							char.mostRecentRow = note.row;
+							else
+							{
+								if (note.noteType != "Ghost Note") char.playAnim(animToPlay, true);
+								else char.playGhostAnim(note.noteData, animToPlay, true);
+							}
 						}
-						else
+						
+						switch (note.noteType)
 						{
-							if (note.noteType != "Ghost Note") char.playAnim(animToPlay, true);
-							else char.playGhostAnim(note.noteData, animToPlay, true);
+							case 'Hey!':
+								if (char.animation.exists('hey'))
+								{
+									char.playAnimForDuration('hey', 0.6);
+									char.specialAnim = true;
+								}
 						}
-					}
-					
-					switch (note.noteType)
-					{
-						case 'Hey!':
-							if (char.animation.exists('hey'))
-							{
-								char.playAnimForDuration('hey', 0.6);
-								char.specialAnim = true;
-							}
 					}
 				}
-			}
-			else
-			{
-				if (!note.noAnimation)
+				else
 				{
-					switch (note.noteType)
+					if (!note.noAnimation)
 					{
-						case 'Hurt Note':
-							if (char.animation.exists('hurt'))
-							{
-								char.playAnim('hurt', true);
-								char.specialAnim = true;
-							}
+						switch (note.noteType)
+						{
+							case 'Hurt Note':
+								if (char.animation.exists('hurt'))
+								{
+									char.playAnim('hurt', true);
+									char.specialAnim = true;
+								}
+						}
 					}
 				}
 			}
@@ -3511,10 +3552,9 @@ class PlayState extends MusicBeatState
 		instance = null;
 		
 		scripts.call('onDestroy', [], true);
+
 		scripts = FlxDestroyUtil.destroy(scripts);
-		
 		eventScripts = FlxDestroyUtil.destroy(eventScripts);
-		
 		noteTypeScripts = FlxDestroyUtil.destroy(noteTypeScripts);
 		
 		if (!ClientPrefs.controllerMode)

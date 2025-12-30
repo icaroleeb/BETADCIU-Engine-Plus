@@ -20,6 +20,8 @@ class ClientPrefs
 {
 	// debug ------------------------------------------------------------------------//
 	@saveVar public static var inDevMode:Bool = false;
+
+    @saveVar public static var streamedMusic:Bool = true;
 	
 	// graphics ------------------------------------------------------------------------//
 	@saveVar public static var gpuCaching:Bool = true;
@@ -242,7 +244,7 @@ class ClientPrefs
 		FlxG.save.flush();
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'nmvTeam'); // Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
+		save.bind('controls_v2', 'nmvTeam'); 
 		save.data.customControls = keyBinds;
 		save.close();
 	}
