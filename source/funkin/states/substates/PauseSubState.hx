@@ -83,20 +83,18 @@ class PauseSubState extends MusicBeatSubstate
 			difficultyChoices.push('BACK');
 			
 			pauseMusic = new FlxSound();
-			try
+			
+			if (songName != null)
 			{
-				if (songName != null)
-				{
-					pauseMusic.loadEmbedded(Paths.music(songName), true, true);
-				}
-				else if (songName != 'None')
-				{
-					pauseMusic.loadEmbedded(Paths.music(Paths.sanitize(ClientPrefs.pauseMusic)), true, true);
-				}
-				pauseMusic.volume = 0;
-				pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
+				pauseMusic.loadEmbedded(Paths.music(songName), true, true);
 			}
-			catch (e) {}
+			else if (songName != 'None')
+			{
+				pauseMusic.loadEmbedded(Paths.music(Paths.sanitize(ClientPrefs.pauseMusic)), true, true);
+			}
+			pauseMusic.volume = 0;
+			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
+			
 			FlxG.sound.list.add(pauseMusic);
 			
 			var bg:FlxSprite = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -352,6 +350,7 @@ class PauseSubState extends MusicBeatSubstate
 	function changeSelection(change:Int = 0):Void
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, menuItems.length - 1);
+		
 		var ret = scriptGroup.call('onChangeSelection', [curSelected]);
 		
 		if (ret != ScriptConstants.Function_Stop)
@@ -382,9 +381,9 @@ class PauseSubState extends MusicBeatSubstate
 		for (i in 0...grpMenuShit.members.length)
 		{
 			var obj = grpMenuShit.members[0];
-			obj.kill();
 			grpMenuShit.remove(obj, true);
-			obj.destroy();
+			
+			obj = FlxDestroyUtil.destroy(obj);
 		}
 		
 		for (i in 0...menuItems.length)
@@ -431,11 +430,9 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		if (skipTimeText == null || skipTimeTracker == null) return;
 		
-        try{
-            skipTimeText.x = skipTimeTracker.x + skipTimeTracker.width + 60;
-            skipTimeText.y = skipTimeTracker.y;
-            skipTimeText.visible = (skipTimeTracker.alpha == 1);
-        }
+		skipTimeText.x = skipTimeTracker.x + skipTimeTracker.width + 60;
+		skipTimeText.y = skipTimeTracker.y;
+		skipTimeText.visible = (skipTimeTracker.alpha == 1);
 	}
 	
 	function updateSkipTimeText()
@@ -447,13 +444,8 @@ class PauseSubState extends MusicBeatSubstate
 	
 	function deleteSkipTimeText()
 	{
-		if (skipTimeText != null)
-		{
-			skipTimeText.kill();
-			remove(skipTimeText);
-			skipTimeText.destroy();
-		}
-		skipTimeText = null;
+		skipTimeText = FlxDestroyUtil.destroy(skipTimeText);
+		
 		skipTimeTracker = null;
 	}
 }
