@@ -242,4 +242,27 @@ class FunkinAssets
 		
 		return sound;
 	}
+	
+	/**
+	 * Constructs a Sound instance out of a `OGG Vorbis` file providing dramatically faster load times on larger files.
+	 * 
+	 * These do not support `.wav` and should be using sparingly
+	 */
+	public static function getVorbisSound(key:String):Null<Sound>
+	{
+		if (key.extension() != 'ogg') return null;
+		
+		#if !lime_vorbis
+		// trace('gulp');
+		return null;
+		#else
+		final vorbisFile = lime.media.vorbis.VorbisFile.fromFile(key);
+		
+		if (vorbisFile == null) return null;
+		
+		final buffer = lime.media.AudioBuffer.fromVorbisFile(vorbisFile);
+		
+		return Sound.fromAudioBuffer(buffer);
+		#end
+	}
 }

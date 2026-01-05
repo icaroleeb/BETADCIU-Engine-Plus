@@ -1509,7 +1509,7 @@ class PlayState extends MusicBeatState
 		
 		curSong = songData.song;
 		
-		Paths.inst(PlayState.SONG.song);
+		if (!ClientPrefs.streamedMusic) Paths.inst(PlayState.SONG.song);
 		
 		vocals = new VocalGroup();
 		add(vocals);

@@ -3,10 +3,6 @@ package funkin.audio;
 import flixel.sound.FlxSoundGroup;
 import flixel.system.FlxAssets.FlxSoundAsset;
 
-#if lime_vorbis
-import lime.media.vorbis.VorbisFile;
-#end
-
 import openfl.media.Sound;
 
 /**
@@ -66,12 +62,5 @@ class FunkinSound
 		}
 		final sound = FlxG.sound.list.recycle(FlxSoundEx).loadEmbedded(embeddedSound, looped, autoDestroy, onComplete);
 		return cast FlxG.sound.loadHelper(sound, volume, group, true);
-	}
-	
-	public static function makeStreamedSound(file:String):Sound
-	{
-		final vorbisFile:Null<VorbisFile> = VorbisFile.fromFile(file);
-		final buffer = lime.media.AudioBuffer.fromVorbisFile(vorbisFile);
-		return Sound.fromAudioBuffer(buffer);
 	}
 }

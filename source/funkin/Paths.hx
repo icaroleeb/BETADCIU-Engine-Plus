@@ -172,7 +172,7 @@ class Paths
 	
 	public static inline function voices(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
 	{
-        var name = sanitize(song);
+		var name = sanitize(song);
 		
 		var songKey:String = '$name/Voices';
 		if (FunkinAssets.isDirectory(getPath('songs/$name/audio', null, checkMods))) songKey = '$name/audio/Voices';
@@ -181,8 +181,8 @@ class Paths
 		
 		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
 		
-		if (ClientPrefs.streamedMusic) return FunkinSound.makeStreamedSound(songKey);
-
+		if (ClientPrefs.streamedMusic) return FunkinAssets.getVorbisSound(songKey);
+		
 		return FunkinAssets.getSoundUnsafe(songKey);
 	}
 	
@@ -197,7 +197,7 @@ class Paths
 		
 		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
 		
-		if (ClientPrefs.streamedMusic) return FunkinSound.makeStreamedSound(songKey);
+		if (ClientPrefs.streamedMusic) return FunkinAssets.getVorbisSound(songKey) ?? FunkinAssets.getSound(songKey);
 		
 		return FunkinAssets.getSound(songKey);
 	}
