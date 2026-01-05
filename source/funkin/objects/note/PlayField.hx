@@ -17,7 +17,7 @@ typedef NoteSignal = FlxTypedSignal<(Note, PlayField) -> Void>;
 class PlayField extends FlxTypedContainer<StrumNote>
 {
 	public var owner(default, set):Character;
-	public var singers:Array<Dynamic> = [];
+	public var singers:Array<Null<Character>> = [];
 	
 	private function set_owner(value:Character)
 	{

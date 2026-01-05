@@ -3357,7 +3357,7 @@ class PlayState extends MusicBeatState
 		}
 		
 		// final char:Null<Character> = note.gfNote ? gf : note.owner ?? field.owner;
-		var chars:Array<Dynamic> = note.gfNote ? [gf] : field.singers;
+		var chars:Array<Null<Character>> = note.gfNote ? [gf] : field.singers;
 		if (note.owner != null) chars = [note.owner];
 		
 		for (char in chars)
