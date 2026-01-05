@@ -1403,16 +1403,8 @@ class PlayState extends MusicBeatState
 		
 		previousFrameTime = FlxG.game.ticks;
 		
-        if(ClientPrefs.streamedMusic){
-            try{
-                var sound = FunkinSound.streamFromBytes(Paths.instPath(PlayState.SONG.song));
-                FlxG.sound.music = sound;
-            } catch(e) {
-                FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
-            }
-        } else 
-            FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
-
+		FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+		
 		FlxG.sound.music.onComplete = finishSong.bind(false);
 		vocals.play();
 		vocals.volume = 1 * volumeMult;
@@ -1524,35 +1516,11 @@ class PlayState extends MusicBeatState
 		
 		if (SONG.needsVoices)
 		{
-            inline function loadSong()
-            {
-                final playerSound = Paths.voices(PlayState.SONG.song, 'player') ?? Paths.voices(PlayState.SONG.song, null);
-                if (playerSound != null) vocals.addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
-                
-                final opponentSound = Paths.voices(PlayState.SONG.song, 'opp');
-                if (opponentSound != null) vocals.addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
-            }
-
-            if(ClientPrefs.streamedMusic)
-            {
-                try{
-                    var playerPath = Paths.voicesPath(PlayState.SONG.song, 'player');
-                    if(!FunkinAssets.exists(playerPath)) playerPath = Paths.voicesPath(PlayState.SONG.song);
-
-                    final playerSound = FunkinSound.streamFromBytes(playerPath);
-
-                    var opponentPath = Paths.voicesPath(PlayState.SONG.song, 'opp');
-                    final opponentSound = FunkinSound.streamFromBytes(opponentPath);
-
-                    if(playerSound != null) vocals.addPlayerVocals(playerSound);
-                    if(opponentSound != null) vocals.addPlayerVocals(opponentSound);
-                } catch(e:haxe.Exception) {
-                    trace(e);
-                    loadSong();
-                }
-            } else 
-                loadSong();
-            
+			final playerSound = Paths.voices(PlayState.SONG.song, 'player') ?? Paths.voices(PlayState.SONG.song, null);
+			if (playerSound != null) vocals.addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
+			
+			final opponentSound = Paths.voices(PlayState.SONG.song, 'opp');
+			if (opponentSound != null) vocals.addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
 		}
 		#if FLX_PITCH
 		FlxG.sound.music.pitch = playbackRate;
@@ -2085,7 +2053,7 @@ class PlayState extends MusicBeatState
 				{
 					// rewrite this later this is messy
 					
-					final expectedPlayfield:Null<PlayField> = getStrumFromID(dunceNote.lane) ?? dunceNote.desiredPlayfield ?? dunceNote.parent?.playField;
+					final expectedPlayfield:Null<PlayField> = getStrumFromID(dunceNote.lane) ?? dunceNote.parent?.playField;
 					
 					if (expectedPlayfield != null) expectedPlayfield.addNote(dunceNote);
 					else
@@ -2152,7 +2120,7 @@ class PlayState extends MusicBeatState
 		{
 			for (i in 0...playFields?.length)
 			{
-				final strums:Null<PlayField> = playFields.members[i];
+				final strums:Null<PlayField> = getStrumFromID(i);
 				if (strums == null) continue;
 				strums.forEachAlive(strum -> {
 					final pos = modManager.getPos(0, 0, 0, curDecBeat, strum.noteData, i, strum, [], strum.vec3Cache);
@@ -3390,10 +3358,10 @@ class PlayState extends MusicBeatState
 		
 		// final char:Null<Character> = note.gfNote ? gf : note.owner ?? field.owner;
 		var chars:Array<Dynamic> = note.gfNote ? [gf] : field.singers;
-        if(note.owner != null) chars = [note.owner];
-
+		if (note.owner != null) chars = [note.owner];
+		
 		for (char in chars)
-		{			
+		{
 			if (char != null)
 			{
 				if (!note.hitCausesMiss)
@@ -3552,7 +3520,7 @@ class PlayState extends MusicBeatState
 		instance = null;
 		
 		scripts.call('onDestroy', [], true);
-
+		
 		scripts = FlxDestroyUtil.destroy(scripts);
 		eventScripts = FlxDestroyUtil.destroy(eventScripts);
 		noteTypeScripts = FlxDestroyUtil.destroy(noteTypeScripts);

@@ -146,8 +146,7 @@ class Note extends FlxSprite
 	
 	public var owner:Character = null;
 	public var playField(default, set):PlayField;
-	public var desiredPlayfield:PlayField; // incase a note should be put into a specific playfield
-	
+		
 	public static var defaultNotes = ['No Animation', 'GF Sing', ''];
 	
 	public function set_playField(field:PlayField)

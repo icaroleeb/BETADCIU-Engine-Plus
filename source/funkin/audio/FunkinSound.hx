@@ -2,10 +2,13 @@ package funkin.audio;
 
 import flixel.sound.FlxSoundGroup;
 import flixel.system.FlxAssets.FlxSoundAsset;
+
 #if lime_vorbis
 import lime.media.vorbis.VorbisFile;
 #end
+
 import openfl.media.Sound;
+
 /**
  * just a copy paste for now 
  */
@@ -64,24 +67,11 @@ class FunkinSound
 		final sound = FlxG.sound.list.recycle(FlxSoundEx).loadEmbedded(embeddedSound, looped, autoDestroy, onComplete);
 		return cast FlxG.sound.loadHelper(sound, volume, group, true);
 	}
-
-    public static function streamFromBytes(path:String, ?loop:Bool = false, autoDestroy:Bool = true, ?onComplete:Void->Void, ?onLoad:Void->Void)
-    {
-        var vorbisFile:Null<VorbisFile> = VorbisFile.fromFile(path);
-        if (vorbisFile != null)
-        {
-            var vorbisSound:Null<Sound> = Sound.fromAudioBuffer(lime.media.AudioBuffer.fromVorbisFile(vorbisFile));
-
-            if (vorbisSound != null)
-            {                
-                var sound:Null<FlxSoundEx> = cast FlxG.sound.list.recycle(FlxSoundEx).loadEmbedded(vorbisSound, loop, autoDestroy, onComplete);
-                // var sound:Null<FlxSoundEx> = cast FlxG.sound.list.recycle(FlxSoundEx).loadEmbedded(vorbisSound, loop, null, false, false, null, onComplete, onLoad);
-                if (sound != null && onLoad != null)
-                    onLoad();
-
-                return sound;
-            } 
-        }
-        return null;
-    }
+	
+	public static function makeStreamedSound(file:String):Sound
+	{
+		final vorbisFile:Null<VorbisFile> = VorbisFile.fromFile(file);
+		final buffer = lime.media.AudioBuffer.fromVorbisFile(vorbisFile);
+		return Sound.fromAudioBuffer(buffer);
+	}
 }

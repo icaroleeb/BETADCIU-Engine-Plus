@@ -169,10 +169,10 @@ class Paths
 		
 		return FunkinAssets.getSound(key);
 	}
-
-    public static function voicesPath(song:String, ?postFix:String, checkMods:Bool = true):Null<String>
-    {
-		var name = sanitize(song);
+	
+	public static inline function voices(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
+	{
+        var name = sanitize(song);
 		
 		var songKey:String = '$name/Voices';
 		if (FunkinAssets.isDirectory(getPath('songs/$name/audio', null, checkMods))) songKey = '$name/audio/Voices';
@@ -180,12 +180,14 @@ class Paths
 		if (postFix != null) songKey += '-$postFix';
 		
 		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
+		
+		if (ClientPrefs.streamedMusic) return FunkinSound.makeStreamedSound(songKey);
 
-        return songKey;
-    }
-    
-    public static function instPath(song:String, ?postFix:String, checkMods:Bool = true):Null<String>
-    {
+		return FunkinAssets.getSoundUnsafe(songKey);
+	}
+	
+	public static inline function inst(song:String, ?postFix:String, checkMods:Bool = true):Null<openfl.media.Sound>
+	{
 		var name = sanitize(song);
 		
 		var songKey:String = '$name/Inst';
@@ -194,20 +196,8 @@ class Paths
 		if (postFix != null) songKey += '-$postFix';
 		
 		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
-
-        return songKey;
-    }
-
-	public static inline function voices(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
-	{
-        var songKey:Null<String> = voicesPath(song, postFix, checkMods);
 		
-		return FunkinAssets.getSoundUnsafe(songKey);
-	}
-	
-	public static inline function inst(song:String, ?postFix:String, checkMods:Bool = true):Null<openfl.media.Sound>
-	{
-        var songKey:Null<String> = instPath(song, postFix, checkMods);
+		if (ClientPrefs.streamedMusic) return FunkinSound.makeStreamedSound(songKey);
 		
 		return FunkinAssets.getSound(songKey);
 	}
