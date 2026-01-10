@@ -14,6 +14,7 @@ import funkin.objects.*;
 class MasterEditorMenu extends MusicBeatState
 {
 	var options:Array<String> = [
+		'Mods Manager',
 		'Week Editor',
 		'Menu Character Editor',
 		'Dialogue Editor',
@@ -108,6 +109,8 @@ class MasterEditorMenu extends MusicBeatState
 		{
 			switch (options[curSelected])
 			{
+				case 'Mods Manager':
+					FlxG.switchState(() -> new ModsState());
 				case 'Character Editor':
 					FlxG.switchState(() -> new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
 				case 'Week Editor':

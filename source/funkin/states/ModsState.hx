@@ -2,48 +2,112 @@ package funkin.states;
 
 import flixel.text.FlxText;
 
+import funkin.scripting.ScriptedState;
+import funkin.objects.CheckboxThingie;
+
+typedef ModData =
+{
+	folder:String,
+	enabled:Bool
+}
+
 class ModsState extends MusicBeatState
 {
-	var modList = [];
+	var bg:FlxSprite;
+	var box:FlxSprite;
+	var description:FlxText;
+	var checkbox:FlxSprite;
+	var name:FlxText;
+	var icon:FlxSprite;
+	
+	var modList:Array<ModData> = [];
 	var curDir:Int = 0;
 	var reset:Bool = false;
 	
-	var icon:FlxSprite;
-	var name:FlxText;
+	public static var topMod:String = '';
+	
+	var topModIndex:Int = 0;
 	
 	override function create()
 	{
-		modList = Mods.getModDirectories();
+		modList = [];
+		FunkinSound.playMusic(Paths.music("freakyMenu"));
+		
+		for (i in CoolUtil.coolTextFile('modsList.txt'))
+		{
+			var name = StringTools.replace(StringTools.replace(i, '|1', ''), '|0', '');
+			var e = StringTools.contains(i, '|1');
+			
+			var type = {folder: name, enabled: e};
+			modList.push(type);
+			
+			if (modList.length == 1)
+			{
+				topMod = name;
+				topModIndex = 0;
+			}
+		}
+		// modList = Mods.getModDirectories();
+		
+		bg = new FlxSprite().loadGraphic(Paths.image("menuDesat"));
+		add(bg);
+		
+		box = new FlxSprite().loadGraphic(Paths.image("mods/menubox"));
+		// box.scale.set(1.3, 1.3);
+		box.updateHitbox();
+		box.screenCenter();
+		add(box);
 		
 		name = new FlxText();
-		name.setFormat(Paths.DEFAULT_FONT, 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		name.setFormat(Paths.DEFAULT_FONT, 40, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		name.text = 'Test Mod';
 		add(name);
+		
+		description = new FlxText();
+		description.setFormat(Paths.DEFAULT_FONT, 28, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		description.fieldWidth = box.width - 20;
+		add(description);
 		
 		icon = new FlxSprite().loadGraphic(Paths.image('icon64'));
 		add(icon);
 		
-		trace(Mods.getModDirectories());
+		checkbox = new FlxSprite(1000, 110).loadGraphic(Paths.image("mods/menucheck1"));
+		checkbox.scale.set(0.625, 0.625);
+		checkbox.updateHitbox();
+		add(checkbox);
+		
+		add(new FlxSprite().loadGraphic(Paths.image("mods/menuborder1")));
+		add(new FlxSprite(685, 645).loadGraphic(Paths.image("mods/menuborder2")));
 		
 		changeDir(0);
-		
-		super.create();
 	}
 	
-	override function update(elapsed:Float)
+	override public function update(elapsed)
 	{
+		if (FlxG.keys.justPressed.R) FlxG.switchState(new ScriptedState('ModTest'));
+		
 		if (controls.UI_UP_P) changeDir(-1);
 		if (controls.UI_DOWN_P) changeDir(1);
-		if (controls.ACCEPT) makeTopMod();
+		if (controls.ACCEPT) toggleMod();
+		if (FlxG.keys.justPressed.TAB) makeTopMod(modList[curDir]);
 		if (controls.BACK)
 		{
+			Mods.currentModDirectory = topMod;
+			
 			if (reset)
 			{
+				FlxG.sound.music.stop();
+				correctTopMod();
+				
 				TitleState.initialized = false;
 				TitleState.closedState = false;
-				FlxG.switchState(TitleState.new);
+				FlxG.switchState(() -> {
+					new Init();
+				});
 			}
-			else FlxG.switchState(funkin.states.MainMenuState.new);
+			else FlxG.switchState(() -> {
+				new MainMenuState();
+			});
 		}
 	}
 	
@@ -53,24 +117,94 @@ class ModsState extends MusicBeatState
 		if (curDir > modList.length - 1) curDir = 0;
 		if (curDir < 0) curDir = modList.length - 1;
 		
-		Mods.currentModDirectory = modList[curDir];
+		var pack = Mods.getPack(modList[curDir].folder);
 		
-		name.text = Mods.getModName(modList[curDir]);
-		name.screenCenter(X);
-		name.y = 20;
+		Mods.currentModDirectory = modList[curDir].folder;
 		
-		icon.loadGraphic(Paths.image(Mods.getModIcon(modList[curDir])));
-		icon.screenCenter(X);
-		icon.y = name.y + name.height + icon.height;
+		var iPath = pack == null ? Paths.image("branding/icon/fallback") : Paths.image(pack.iconFile);
+		if (iPath == null) iPath = Paths.image("branding/icon/fallback");
+		icon.loadGraphic(iPath);
+		
+		icon.setGraphicSize(45);
+		icon.updateHitbox();
+		icon.setPosition(box.x + 15, box.y);
+		
+		name.text = (pack == null ? modList[curDir].folder : pack.name) + ' [' + (curDir + 1) + '/' + modList.length + ']';
+		name.setPosition(icon.x + icon.width + 10, icon.y + (icon.height - name.height) / 2);
+		
+		var text = (pack == null || pack.description == null) ? "No description provided." : pack.description;
+		
+		description.text = text;
+		description.setPosition(box.x + 10, box.y + 65);
+		
+		var daValue = isModEnabled(modList[curDir].folder) ? Paths.image("mods/menucheck2") : Paths.image("mods/menucheck1");
+		checkbox.loadGraphic(daValue);
 	}
 	
-	function makeTopMod()
+	function toggleMod()
 	{
+		var mod = modList[curDir];
+		
+		mod.enabled = !mod.enabled;
+		var daValue = mod.enabled ? Paths.image("mods/menucheck2") : Paths.image("mods/menucheck1");
+		checkbox.loadGraphic(daValue);
+		
+		if (!mod.enabled && mod.folder == topMod)
+		{
+			var index = curDir + 1;
+			if (index > modList.length - 1) index = 0;
+		}
+		
+		var fileStr:String = '';
+		for (values in modList)
+		{
+			if (fileStr.length > 0) fileStr += '\n';
+			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
+		}
+		File.saveContent('modsList.txt', fileStr);
+	}
+	
+	function makeTopMod(tempMod)
+	{
+		var mod = tempMod;
+		
 		reset = true;
-		FunkinSound.play(Paths.sound('confirmMenu'));
-		Mods.updateModList(modList[curDir]);
+		Mods.currentModDirectory = mod.folder;
+		Mods.updateModList(mod.folder);
 		Mods.loadTopMod();
 		
-		Logger.log('${modList[curDir]} is now prioritized');
+		topMod = mod.folder;
+		topModIndex = curDir;
+		
+		if (!modList[curDir].enabled) toggleMod();
+		
+		// Logger.log('${modList[curDir]} is now prioritized');
+	}
+	
+	function isModEnabled(mod:String = '')
+	{
+		var list = CoolUtil.coolTextFile('modsList.txt');
+		
+		for (i in list)
+		{
+			if (StringTools.contains(i, mod))
+			{
+				var e = StringTools.contains(i, '|1');
+				return e;
+			}
+		}
+		
+		return true;
+	}
+	
+	function correctTopMod()
+	{
+		if (!modList[topModIndex].enabled)
+		{
+			for (i in modList)
+			{
+				if (i.enabled) makeTopMod(i);
+			}
+		}
 	}
 }

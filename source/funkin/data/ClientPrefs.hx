@@ -20,8 +20,8 @@ class ClientPrefs
 {
 	// debug ------------------------------------------------------------------------//
 	@saveVar public static var inDevMode:Bool = false;
-
-    @saveVar public static var streamedMusic:Bool = true;
+	
+	@saveVar public static var streamedMusic:Bool = true;
 	
 	// graphics ------------------------------------------------------------------------//
 	@saveVar public static var gpuCaching:Bool = true;
@@ -244,7 +244,7 @@ class ClientPrefs
 		FlxG.save.flush();
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'nmvTeam'); 
+		save.bind('controls_v2', 'nmvTeam');
 		save.data.customControls = keyBinds;
 		save.close();
 	}

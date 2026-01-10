@@ -17,6 +17,7 @@ typedef ModMeta =
 {
 	var name:String;
 	var global:Bool;
+	var description:String;
 	
 	var ?discordClientID:String;
 	var ?windowTitle:String;
@@ -215,14 +216,11 @@ class Mods
 		return list;
 	}
 	
-	public static function updateModList(top:String = '')
+	public static function getListAsArray(?top:String = ''):Array<{folder:String, enabled:Bool}>
 	{
-		#if MODS_ALLOWED
-		ensureModsListExists();
-		
-		// Find all that are already ordered
 		var list:Array<{folder:String, enabled:Bool}> = [];
 		var added:Array<String> = [];
+		if (top == null || top == '') top = currentModDirectory;
 		
 		if (top.length >= 1)
 		{
@@ -232,7 +230,6 @@ class Mods
 				list.push({folder: top, enabled: true});
 			}
 		}
-		
 		for (mod in CoolUtil.coolTextFile('modsList.txt'))
 		{
 			var dat:Array<String> = mod.split("|");
@@ -246,7 +243,6 @@ class Mods
 				list.push({folder: folder, enabled: (dat[1] == "1")});
 			}
 		}
-		
 		// Scan for folders that aren't on modsList.txt yet
 		for (folder in getModDirectories())
 		{
@@ -261,14 +257,24 @@ class Mods
 			}
 		}
 		
+		return list;
+	}
+	
+	public static function updateModList(top:String = '')
+	{
+		#if MODS_ALLOWED
+		ensureModsListExists();
+		// Find all that are already ordered
+		var list = getListAsArray();
+		
 		// Now save file
+		
 		var fileStr:String = '';
 		for (values in list)
 		{
 			if (fileStr.length > 0) fileStr += '\n';
 			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
 		}
-		
 		File.saveContent('modsList.txt', fileStr);
 		#end
 	}
@@ -276,11 +282,9 @@ class Mods
 	public static function loadTopMod()
 	{
 		currentModDirectory = '';
-		
 		#if MODS_ALLOWED
 		var list:Array<String> = Mods.parseList().enabled;
 		if (list != null && list[0] != null) Mods.currentModDirectory = list[0];
-		
 		currentMod = loadTopModConfig();
 		#end
 	}
@@ -288,21 +292,16 @@ class Mods
 	public static function loadTopModConfig():Null<ModMeta>
 	{
 		var pack = getPack();
-		
 		if (pack == null) return null;
-		
 		funkin.utils.WindowUtil.setTitle(pack.windowTitle ?? 'Friday Night Funkin');
-		
 		inline function resetIcon()
 		{
 			final path = Paths.getPath('images/branding/icon/icon64.png', null, true);
 			FlxG.stage.window.setIcon(Image.fromBytes(FunkinAssets.getBytes(path)));
 		}
-		
 		if (pack.iconFile != null)
 		{
 			final path = Paths.getPath('images/${pack.iconFile}.png', null, true);
-			
 			if (FunkinAssets.exists(path)) FlxG.stage.window.setIcon(Image.fromBytes(FunkinAssets.getBytes(path)));
 			else
 			{
@@ -311,19 +310,16 @@ class Mods
 			}
 		}
 		else resetIcon();
-		
 		if (pack.defaultTransition != null)
 		{
 			switch (pack.defaultTransition)
 			{
 				case 'base', 'swipe':
 					final trans = SwipeTransition;
-					
 					MusicBeatState.transitionInState = trans;
 					MusicBeatState.transitionOutState = trans;
 				case 'fade':
 					final trans = FadeTransition;
-					
 					MusicBeatState.transitionInState = trans;
 					MusicBeatState.transitionOutState = trans;
 				default:
@@ -333,14 +329,11 @@ class Mods
 		else
 		{
 			final trans = SwipeTransition;
-			
 			MusicBeatState.transitionInState = trans;
 			MusicBeatState.transitionOutState = trans;
 		}
-		
 		if (pack.discordClientID != null) funkin.api.DiscordClient.rpcId = pack.discordClientID;
 		else funkin.api.DiscordClient.rpcId = DiscordClient.NMV_ID;
-		
 		if (pack.defaultFont != null)
 		{
 			if (FunkinAssets.exists(Paths.font(pack.defaultFont)))
@@ -354,18 +347,14 @@ class Mods
 			}
 		}
 		else Paths.DEFAULT_FONT = Paths.font('vcr.ttf');
-		
 		// if (pack.stateRedirects.TitleState != null) TitleState.init();
-		
 		return pack;
 	}
 	
 	public static function isStateRedirected(nextState:flixel.FlxState):Bool
 	{
 		final stateName = Type.getClassName(Type.getClass(nextState)).split('.').pop();
-		
 		if (currentMod == null || currentMod.stateRedirects == null) return false;
-		
 		var retVal = false;
 		switch (stateName)
 		{
@@ -381,8 +370,9 @@ class Mods
 				retVal = currentMod.stateRedirects.CreditsState != null;
 			case 'OptionsState':
 				retVal = currentMod.stateRedirects.OptionsState != null;
+			case 'ScriptedState':
+				retVal = false;
 		}
-		
 		return retVal;
 	}
 	
@@ -390,7 +380,6 @@ class Mods
 	{
 		final stateName = Type.getClassName(Type.getClass(nextState)).split('.').pop();
 		if (currentMod == null || currentMod.stateRedirects == null) return null;
-		
 		var retVal = null;
 		switch (stateName)
 		{
@@ -407,45 +396,34 @@ class Mods
 			case 'OptionsState':
 				retVal = currentMod.stateRedirects.OptionsState;
 		}
-		
 		return retVal;
 	}
 	
 	public static function getModIcon(?mod:String):String
 	{
 		if (mod.length < 1) mod = currentModDirectory;
-		
 		var retVal = 'branding/icon/fallback';
 		var pack = getPack(mod);
-		
 		if (pack != null && pack.iconFile != null) retVal = pack.iconFile;
-		
 		return retVal;
 	}
 	
 	public static function getModName(?mod:String):String
 	{
 		if (mod.length < 1) mod = currentModDirectory;
-		
 		var retVal = mod;
 		var pack = getPack(mod);
-		
 		if (pack != null && pack.name != null) retVal = pack.name;
-		
 		return retVal;
 	}
 	
 	public static function getModFont(?mod:String):String
 	{
 		if (mod.length < 1) mod = currentModDirectory;
-		
 		var retVal = Paths.font('vcr.ttf');
 		var pack = getPack(mod);
-		
 		if (pack != null && pack.defaultFont != null) retVal = Paths.font(pack.defaultFont);
-		
 		trace(retVal);
-		
 		return retVal;
 	}
 }

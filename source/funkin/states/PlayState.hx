@@ -513,6 +513,13 @@ class PlayState extends MusicBeatState
 	 * Can be manually changed.
 	 */
 	var rpcSongName:String = '';
+
+	/**
+		* Variable that determines whether PlayState will automatically handle Discord RPC.
+		*
+		* Useful for if you want custom Discord RPC messages and PlayState gets in the way.
+	**/
+	public var automatedDiscord:Bool = true;
 	
 	/**
 	 * Group of general scripts.
@@ -1428,7 +1435,8 @@ class PlayState extends MusicBeatState
 		songLength = FlxG.sound.music.length;
 		
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
+		if(automatedDiscord)
+			DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
 		
 		scripts.set('songLength', songLength);
 		scripts.call('onSongStart', []);
@@ -1937,6 +1945,8 @@ class PlayState extends MusicBeatState
 	 */
 	inline function resetDiscordRPC(showTime:Bool = false)
 	{
+		if(!automatedDiscord) return;
+
 		if (!showTime) DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty);
 		else DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
 	}
@@ -2258,7 +2268,8 @@ class PlayState extends MusicBeatState
 		}
 		openSubState(new PauseSubState());
 		
-		DiscordClient.changePresence(rpcPausedDescription, 'Paused');
+		if(automatedDiscord)
+			DiscordClient.changePresence(rpcPausedDescription, 'Paused');
 	}
 	
 	function openChartEditor():Void
@@ -2272,7 +2283,8 @@ class PlayState extends MusicBeatState
 		FlxG.switchState(ChartEditorState.new);
 		chartingMode = true;
 		
-		DiscordClient.changePresence('Chart Editor');
+		if(automatedDiscord)
+			DiscordClient.changePresence('Chart Editor');
 	}
 	
 	function openCharacterEditor():Void
@@ -2285,7 +2297,8 @@ class PlayState extends MusicBeatState
 		
 		FlxG.switchState(() -> new CharacterEditorState(SONG.player2, true));
 		
-		DiscordClient.changePresence("Character Editor", null, null, true);
+		if(automatedDiscord)
+			DiscordClient.changePresence("Character Editor", null, null, true);
 	}
 	
 	function openNoteskinEditor():Void
@@ -2302,7 +2315,8 @@ class PlayState extends MusicBeatState
 		#end
 		chartingMode = true;
 		
-		DiscordClient.changePresence("Noteskin Editor", null, null, true);
+		if(automatedDiscord)
+			DiscordClient.changePresence("Noteskin Editor", null, null, true);
 	}
 	
 	public function updateScoreBar(miss:Bool = false):Void
@@ -2337,7 +2351,8 @@ class PlayState extends MusicBeatState
 				openSubState(new GameOverSubstate(boyfriend));
 				
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + rpcDescription, rpcSongName);
+				if(automatedDiscord)
+					DiscordClient.changePresence("Game Over - " + rpcDescription, rpcSongName);
 				
 				isDead = true;
 				totalBeat = 0;
