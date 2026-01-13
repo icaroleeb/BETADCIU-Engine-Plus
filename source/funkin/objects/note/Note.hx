@@ -24,6 +24,8 @@ typedef EventNote =
 
 class Note extends FlxSprite
 {
+	public static var defaultNotes = ['No Animation', 'GF Sing', ''];
+	
 	public var row:Int = 0;
 	public var lane:Int = 0;
 	
@@ -146,8 +148,8 @@ class Note extends FlxSprite
 	
 	public var owner:Character = null;
 	public var playField(default, set):PlayField;
-		
-	public static var defaultNotes = ['No Animation', 'GF Sing', ''];
+	
+	public var animSuffix = '';
 	
 	public function set_playField(field:PlayField)
 	{
@@ -202,6 +204,8 @@ class Note extends FlxSprite
 		{
 			switch (value)
 			{
+				case 'Alt Animation':
+					animSuffix = '-alt';
 				case 'Hurt Note':
 					ignoreNote = mustPress;
 					missHealth = isSustainNote ? 0.1 : 0.3;

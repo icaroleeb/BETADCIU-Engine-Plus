@@ -329,6 +329,8 @@ class Character extends Bopper
 	override function playAnim(animToPlay:String, isForced:Bool = false, isReversed:Bool = false, frame:Int = 0)
 	{
 		specialAnim = false;
+		animToPlay += animSuffix;
+		
 		super.playAnim(animToPlay, isForced, isReversed, frame);
 		
 		if (!debugMode

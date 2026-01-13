@@ -513,11 +513,11 @@ class PlayState extends MusicBeatState
 	 * Can be manually changed.
 	 */
 	var rpcSongName:String = '';
-
+	
 	/**
-		* Variable that determines whether PlayState will automatically handle Discord RPC.
-		*
-		* Useful for if you want custom Discord RPC messages and PlayState gets in the way.
+	 * Variable that determines whether PlayState will automatically handle Discord RPC.
+	 *
+	 * Useful for if you want custom Discord RPC messages and PlayState gets in the way.
 	**/
 	public var automatedDiscord:Bool = true;
 	
@@ -1435,8 +1435,7 @@ class PlayState extends MusicBeatState
 		songLength = FlxG.sound.music.length;
 		
 		// Updating Discord Rich Presence (with Time Left)
-		if(automatedDiscord)
-			DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
+		if (automatedDiscord) DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
 		
 		scripts.set('songLength', songLength);
 		scripts.call('onSongStart', []);
@@ -1646,6 +1645,9 @@ class PlayState extends MusicBeatState
 				rowArray[swagNote.row].push(swagNote);
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
+				
+				final isAltNote:Bool = section.altAnim && !gottaHitNote;
+				if (isAltNote) swagNote.animSuffix = '-alt';
 				
 				if (gottaHitNote) lastBFNotes[daNoteData] = swagNote;
 				else lastDadNotes[daNoteData] = swagNote;
@@ -1945,8 +1947,8 @@ class PlayState extends MusicBeatState
 	 */
 	inline function resetDiscordRPC(showTime:Bool = false)
 	{
-		if(!automatedDiscord) return;
-
+		if (!automatedDiscord) return;
+		
 		if (!showTime) DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty);
 		else DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
 	}
@@ -2268,8 +2270,7 @@ class PlayState extends MusicBeatState
 		}
 		openSubState(new PauseSubState());
 		
-		if(automatedDiscord)
-			DiscordClient.changePresence(rpcPausedDescription, 'Paused');
+		if (automatedDiscord) DiscordClient.changePresence(rpcPausedDescription, 'Paused');
 	}
 	
 	function openChartEditor():Void
@@ -2283,8 +2284,7 @@ class PlayState extends MusicBeatState
 		FlxG.switchState(ChartEditorState.new);
 		chartingMode = true;
 		
-		if(automatedDiscord)
-			DiscordClient.changePresence('Chart Editor');
+		if (automatedDiscord) DiscordClient.changePresence('Chart Editor');
 	}
 	
 	function openCharacterEditor():Void
@@ -2297,8 +2297,7 @@ class PlayState extends MusicBeatState
 		
 		FlxG.switchState(() -> new CharacterEditorState(SONG.player2, true));
 		
-		if(automatedDiscord)
-			DiscordClient.changePresence("Character Editor", null, null, true);
+		if (automatedDiscord) DiscordClient.changePresence("Character Editor", null, null, true);
 	}
 	
 	function openNoteskinEditor():Void
@@ -2315,8 +2314,7 @@ class PlayState extends MusicBeatState
 		#end
 		chartingMode = true;
 		
-		if(automatedDiscord)
-			DiscordClient.changePresence("Noteskin Editor", null, null, true);
+		if (automatedDiscord) DiscordClient.changePresence("Noteskin Editor", null, null, true);
 	}
 	
 	public function updateScoreBar(miss:Bool = false):Void
@@ -2351,8 +2349,7 @@ class PlayState extends MusicBeatState
 				openSubState(new GameOverSubstate(boyfriend));
 				
 				// Game Over doesn't get his own variable because it's only used here
-				if(automatedDiscord)
-					DiscordClient.changePresence("Game Over - " + rpcDescription, rpcSongName);
+				if (automatedDiscord) DiscordClient.changePresence("Game Over - " + rpcDescription, rpcSongName);
 				
 				isDead = true;
 				totalBeat = 0;
@@ -3383,9 +3380,7 @@ class PlayState extends MusicBeatState
 				{
 					if (!note.noAnimation)
 					{
-						final animSuffix = (note.noteType == 'Alt Animation' || SONG.notes[curSection]?.altAnim) ? '-alt' : '';
-						
-						final animToPlay = noteSkin.data.singAnimations[Std.int(Math.abs(note.noteData))] + animSuffix;
+						final animToPlay = noteSkin.data.singAnimations[Std.int(Math.abs(note.noteData))] + note.animSuffix;
 						
 						char.holdTimer = 0;
 						
@@ -3397,7 +3392,7 @@ class PlayState extends MusicBeatState
 							if (ClientPrefs.jumpGhosts && char.ghostsEnabled && chord != null && chord.length > 1 && note.noteType != "Ghost Note")
 							{
 								final animNote = chord[0];
-								final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + animSuffix;
+								final realAnim = noteSkin.data.singAnimations[Std.int(Math.abs(animNote.noteData))] + note.animSuffix;
 								
 								if (char.mostRecentRow != note.row) char.playAnim(realAnim, true);
 								
