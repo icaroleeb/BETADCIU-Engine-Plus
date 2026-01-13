@@ -84,9 +84,15 @@ class OptionsState extends MusicBeatState
 			
 			changeSelection();
 		}
-		ClientPrefs.flush();
 		
 		super.create();
+	}
+	
+	override function closeSubState()
+	{
+		ClientPrefs.flush();
+		
+		super.closeSubState();
 	}
 	
 	override function update(elapsed:Float)

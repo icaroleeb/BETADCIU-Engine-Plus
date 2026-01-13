@@ -244,7 +244,7 @@ class ClientPrefs
 		FlxG.save.flush();
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'nmvTeam');
+		save.bind('controls_v2');
 		save.data.customControls = keyBinds;
 		save.close();
 	}
@@ -276,21 +276,14 @@ class ClientPrefs
 		}
 		
 		var save:FlxSave = new FlxSave();
-		save.bind('controls_v2', 'nmvTeam');
-		if (save != null)
+		save.bind('controls_v2');
+		if (save != null && save.data.customControls != null)
 		{
-			try
-			{
-				if (save.data.customControls != null) CoolUtil.copyMapValues(save.data.customControls, keyBinds);
-			}
-			catch (e:haxe.Exception)
-			{
-				trace(e);
-			}
+			CoolUtil.copyMapValues(save.data.customControls, keyBinds);
 		}
 		reloadControls();
 		
-		save.destroy();
+		save = FlxDestroyUtil.destroy(save);
 	}
 	
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic):Dynamic
