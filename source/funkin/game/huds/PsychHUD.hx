@@ -282,7 +282,13 @@ class PsychHUD extends BaseHUD
 		
 		if (showRatingNum)
 		{
-			ratingNumGroup.clear();
+			for (i in ratingNumGroup)
+			{
+				if (i.alive)
+				{
+					i.kill();
+				}
+			}
 			
 			var seperatedScore:Array<Int> = [];
 			
@@ -298,6 +304,8 @@ class PsychHUD extends BaseHUD
 			for (i in seperatedScore)
 			{
 				var numScore:FlxSprite = ratingNumGroup.recycle(FlxSprite);
+				FlxTween.cancelTweensOf(numScore);
+				
 				numScore.loadGraphic(Paths.image(ratingPrefix + 'num' + Std.int(i) + ratingSuffix));
 				numScore.alpha = 1;
 				numScore.screenCenter();
