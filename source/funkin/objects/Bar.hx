@@ -1,11 +1,13 @@
 package funkin.objects;
 
+import funkin.game.IUiSprite;
+
 import flixel.util.helpers.FlxBounds;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxRect;
 
 @:nullSafety
-class Bar extends FlxSpriteGroup
+class Bar extends FlxSpriteGroup implements IUiSprite
 {
 	public final bg:FlxSprite;
 	public final leftBar:FlxSprite;
@@ -196,5 +198,21 @@ class Bar extends FlxSpriteGroup
 		barHeight = value;
 		regenerateClips();
 		return value;
+	}
+	
+	public var alphaMultipler(default, set):Float = 1;
+	
+	function set_alphaMultipler(v:Float):Float
+	{
+		alphaMultipler = FlxMath.bound(v, 0, 1);
+		set_alpha(alpha);
+		return alphaMultipler;
+	}
+	
+	override function set_alpha(v:Float)
+	{
+		v = FlxMath.bound(v, 0, 1);
+		v *= alphaMultipler;
+		return super.set_alpha(v);
 	}
 }

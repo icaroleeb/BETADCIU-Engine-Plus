@@ -2,8 +2,10 @@ package funkin.objects;
 
 import flixel.FlxSprite;
 
+import funkin.game.IUiSprite;
+
 @:nullSafety
-class HealthIcon extends FlxSprite
+class HealthIcon extends FlxSprite implements IUiSprite
 {
 	/**
 	 * Optional parented sprite
@@ -35,6 +37,22 @@ class HealthIcon extends FlxSprite
 	 * Used for dividing icon based on how many frames it has
 	**/
 	public var frameCount(default, set):Int = 2;
+	
+	public var alphaMultipler(default, set):Float = 1;
+	
+	function set_alphaMultipler(v:Float):Float
+	{
+		alphaMultipler = FlxMath.bound(v, 0, 1);
+		set_alpha(alpha);
+		return alphaMultipler;
+	}
+	
+	override function set_alpha(v:Float)
+	{
+		v = FlxMath.bound(v, 0, 1);
+		v *= alphaMultipler;
+		return super.set_alpha(v);
+	}
 	
 	public function set_frameCount(value:Int)
 	{
