@@ -92,7 +92,7 @@ class StrumNote extends FlxSprite
 		var arr:Array<FlxColor> = [];
 		arr = NoteSkinHelper.getCurColors(noteData, note != null ? note.quant : 4);
 		
-		if (ClientPrefs.noteSkin.contains('Quant') && anim == 'pressed') arr = ClientPrefs.arrowRGBquant[0];
+		if (isQuant && anim == 'pressed') arr = ClientPrefs.arrowRGBquant[0];
 		
 		if (rgbShader != null)
 		{
@@ -104,11 +104,10 @@ class StrumNote extends FlxSprite
 	
 	public function reloadNote()
 	{
-		isQuant = false;
 		var lastAnim:String = null;
 		if (animation.curAnim != null) lastAnim = animation.curAnim.name;
 		var br:String = texture;
-		if (ClientPrefs.noteSkin.contains('Quant')) isQuant = NoteSkinHelper.instance.data.isQuants;
+		isQuant = parent.quants;
 		
 		if (NoteSkinHelper.instance.data.isPixel)
 		{

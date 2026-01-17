@@ -264,9 +264,10 @@ class WIPNoteSkinEditor extends UIState
 			buildNotes(true);
 		}
 		
-		uiElements.settingsBox.shaderColoringBox.onChange = (ui) -> {
-			helper.data.inGameColoring = ui.value.toBool();
-			buildNotes(true);
+		uiElements.settingsBox.shaderColoringBox.onClick = (ui) -> {
+			// helper.data.inGameColoring = ui.value.toBool();
+			// buildNotes(true);
+			trace(ui);
 		}
 		
 		uiElements.settingsBox.splashBox.onChange = (ui) -> {
@@ -308,7 +309,6 @@ class WIPNoteSkinEditor extends UIState
 				case 'Blue':
 					helper.data.arrowRGBdefault[id].b = colour;
 			}
-			trace('Changing $curColorString to $colour');
 			updateStrumColors();
 		}
 		
@@ -401,6 +401,10 @@ class WIPNoteSkinEditor extends UIState
 	
 	function buildNotes(?skipTween:Bool = false)
 	{
+		// re-setting it in case it breaks
+		NoteSkinHelper.instance = helper;
+		trace('rebuilding notes');
+		
 		if (playfields.members.length > 0) playfields.clear();
 		
 		for (i in 0...Std.int(uiElements.settingsBox.lanecount.value))
@@ -409,6 +413,7 @@ class WIPNoteSkinEditor extends UIState
 			field.baseAlpha = 0.8;
 			field.generateReceptors();
 			field.fadeIn(skipTween);
+			field.quants = false;
 			playfields.add(field);
 			
 			// annoying but whatever

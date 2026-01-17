@@ -95,6 +95,28 @@ class FlxMacro
 			
 		fields.push(
 			{
+				doc: "Sets the scale of an object then updates the hitbox.",
+				name: "setScale",
+				access: [haxe.macro.Expr.Access.APublic],
+				kind: FFun(
+					{
+						args: [
+							{name: "x", type: (macro :Float)},
+							{name: "y", type: (macro :Float)},
+							{name: "update", type: (macro :Bool), value: (macro $v{true})}
+						],
+						expr: macro
+						{
+							this.scale.set(x, y);
+							if (update) this.updateHitbox();
+							return this;
+						}
+					}),
+				pos: Context.currentPos(),
+			});
+			
+		fields.push(
+			{
 				doc: "centers the sprite onto a FlxObject by their hitboxes.",
 				name: "centerOnObject",
 				access: [haxe.macro.Expr.Access.APublic],

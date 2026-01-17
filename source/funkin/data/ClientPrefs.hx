@@ -21,7 +21,9 @@ class ClientPrefs
 	// debug ------------------------------------------------------------------------//
 	@saveVar public static var inDevMode:Bool = false;
 	
-	@saveVar public static var streamedMusic:Bool = true;
+	@saveVar public static var streamedMusic:Bool = false;
+	
+	@saveVar public static var autoPause:Bool = false;
 	
 	// graphics ------------------------------------------------------------------------//
 	@saveVar public static var gpuCaching:Bool = true;
