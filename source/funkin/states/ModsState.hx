@@ -14,6 +14,8 @@ typedef ModData =
 class ModsState extends MusicBeatState
 {
 	var bg:FlxSprite;
+	var txtbox:FlxSprite;
+	var listtxt:FlxText;
 	var box:FlxSprite;
 	var description:FlxText;
 	var checkbox:FlxSprite;
@@ -52,6 +54,16 @@ class ModsState extends MusicBeatState
 		bg = new FlxSprite().loadGraphic(Paths.image("menuDesat"));
 		add(bg);
 		
+		txtbox = new FlxSprite(50).makeGraphic(200, 500, FlxColor.BLACK);
+		txtbox.alpha = 0.4;
+		txtbox.screenCenter(FlxAxes.Y);
+		add(txtbox);
+		
+		listtxt = new FlxText(txtbox.x, txtbox.y);
+		listtxt.setFormat(Paths.DEFAULT_FONT, 18, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		listtxt.text = 'poo';
+		add(listtxt);
+		
 		box = new FlxSprite().loadGraphic(Paths.image("mods/menubox"));
 		// box.scale.set(1.3, 1.3);
 		box.updateHitbox();
@@ -84,11 +96,18 @@ class ModsState extends MusicBeatState
 	
 	override public function update(elapsed)
 	{
-		if (FlxG.keys.justPressed.R) FlxG.switchState(new ScriptedState('ModTest'));
-		
-		if (controls.UI_UP_P) changeDir(-1);
-		if (controls.UI_DOWN_P) changeDir(1);
+		if (controls.UI_UP_P)
+		{
+			changeDir(-1);
+			FlxG.sound.play(Paths.sound("scrollMenu"));
+		}
+		if (controls.UI_DOWN_P)
+		{
+			changeDir(1);
+			FlxG.sound.play(Paths.sound("scrollMenu"));
+		}
 		if (controls.ACCEPT) toggleMod();
+		
 		if (FlxG.keys.justPressed.TAB) makeTopMod(modList[curDir]);
 		if (controls.BACK)
 		{
@@ -121,6 +140,9 @@ class ModsState extends MusicBeatState
 		
 		Mods.currentModDirectory = modList[curDir].folder;
 		
+		box.screenCenter(FlxAxes.X);
+		box.x += 125;
+		
 		var iPath = pack == null ? Paths.image("branding/icon/fallback") : Paths.image(pack.iconFile);
 		if (iPath == null) iPath = Paths.image("branding/icon/fallback");
 		icon.loadGraphic(iPath);
@@ -137,8 +159,11 @@ class ModsState extends MusicBeatState
 		description.text = text;
 		description.setPosition(box.x + 10, box.y + 65);
 		
-		var daValue = isModEnabled(modList[curDir].folder) ? Paths.image("mods/menucheck2") : Paths.image("mods/menucheck1");
-		checkbox.loadGraphic(daValue);
+		var daValue = isModEnabled(modList[curDir].folder) ? ("mods/menucheck2") : ("mods/menucheck1");
+		checkbox.loadGraphic(Paths.image(daValue));
+		checkbox.y = daValue == 'mods/menucheck2' ? 104 : 127;
+		
+		handleListTxt();
 	}
 	
 	function toggleMod()
@@ -146,8 +171,10 @@ class ModsState extends MusicBeatState
 		var mod = modList[curDir];
 		
 		mod.enabled = !mod.enabled;
-		var daValue = mod.enabled ? Paths.image("mods/menucheck2") : Paths.image("mods/menucheck1");
-		checkbox.loadGraphic(daValue);
+		
+		var daValue = mod.enabled ? ("mods/menucheck2") : ("mods/menucheck1");
+		checkbox.loadGraphic(Paths.image(daValue));
+		checkbox.y = daValue == 'mods/menucheck2' ? 104 : 127;
 		
 		if (!mod.enabled && mod.folder == topMod)
 		{
@@ -161,7 +188,10 @@ class ModsState extends MusicBeatState
 			if (fileStr.length > 0) fileStr += '\n';
 			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
 		}
+		
+		FlxG.sound.play(Paths.sound("cancelMenu"));
 		File.saveContent('modsList.txt', fileStr);
+		handleListTxt();
 	}
 	
 	function makeTopMod(tempMod)
@@ -178,6 +208,8 @@ class ModsState extends MusicBeatState
 		
 		if (!modList[curDir].enabled) toggleMod();
 		
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+		handleListTxt();
 		// Logger.log('${modList[curDir]} is now prioritized');
 	}
 	
@@ -205,6 +237,21 @@ class ModsState extends MusicBeatState
 			{
 				if (i.enabled) makeTopMod(i);
 			}
+		}
+	}
+	
+	function handleListTxt()
+	{
+		listtxt.setPosition(txtbox.x + 5, txtbox.y + 5);
+		listtxt.text = '';
+		
+		for (i in modList)
+		{
+			var fuckString = (i.folder == topMod ? ' [TOP]' : '');
+			if (i.folder == modList[curDir].folder) fuckString += ' <\n';
+			else fuckString += '\n';
+			
+			listtxt.text += i.folder + fuckString;
 		}
 	}
 }
