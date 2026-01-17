@@ -248,7 +248,7 @@ class Note extends FlxSprite
 		this.player = player;
 		isSustainNote = sustainNote;
 		
-		if ((ClientPrefs.noteSkin == 'Quants' || ClientPrefs.noteSkin == "QuantStep") && canQuant)
+		if (ClientPrefs.quants && canQuant)
 		{
 			var beat = Conductor.getBeatInMeasure(strumTime);
 			if (prevNote != null && isSustainNote) quant = prevNote.quant;
@@ -367,7 +367,7 @@ class Note extends FlxSprite
 		
 		var lastScaleY:Float = scale.y;
 		var blahblah:String = arraySkin.join('/');
-		isQuant = (ClientPrefs.noteSkin == 'Quants' || ClientPrefs.noteSkin == "QuantStep") && NoteSkinHelper.instance.data.isQuants;
+		isQuant = ClientPrefs.quants && NoteSkinHelper.instance.data.isQuants;
 		if (NoteSkinHelper.instance.data.isPixel)
 		{
 			if (isSustainNote)

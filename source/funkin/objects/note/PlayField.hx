@@ -18,7 +18,7 @@ class PlayField extends FlxTypedContainer<StrumNote>
 {
 	public var owner(default, set):Character;
 	public var singers:Array<Null<Character>> = [];
-	public var quants(default, set):Bool = ClientPrefs.noteSkin.contains('Quant');
+	public var quants(default, set):Bool = ClientPrefs.quants;
 	
 	private function set_quants(value:Bool)
 	{

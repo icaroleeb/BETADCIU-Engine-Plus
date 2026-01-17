@@ -206,7 +206,7 @@ class StrumNote extends FlxSprite
 		}
 		if (animation.curAnim?.name == 'confirm' && !NoteSkinHelper.instance.data.isPixel) centerOrigin();
 		
-		handleColors(anim, ClientPrefs.noteSkin.contains('Quant') ? note : null);
+		handleColors(anim, ClientPrefs.quants ? note : null);
 	}
 	
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)

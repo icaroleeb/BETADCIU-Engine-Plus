@@ -23,11 +23,10 @@ class MiscSubState extends BaseOptionsMenu
 		var pause:Option = new Option("Auto-Pause Game",
 			'If checked, the game will automatically freeze when unselected, pausing all sounds and visuals. If unchecked, the game will continue as normal regardless of focus.', 'autoPause',
 			'bool', false);
-		addOption(pause);
-		pause.callback = () -> {
+		pause.onChange = ()->{
 			FlxG.autoPause = ClientPrefs.autoPause;
-			trace(FlxG.autoPause);
-		}
+		};		
+		addOption(pause);
 		
 		super();
 	}

@@ -37,11 +37,13 @@ class ClientPrefs
 	@saveVar public static var framerate:Int = 60;
 	
 	// visuals ------------------------------------------------------------------------//
-	@saveVar public static var jumpGhosts:Bool = true;
+	@saveVar public static var jumpGhosts:Bool = false;
 	
 	@saveVar public static var noteSplashes:Bool = true;
 	
 	@saveVar public static var hideHud:Bool = false;
+	
+	@saveVar public static var showRatings:Bool = true;
 	
 	@saveVar public static var timeBarType:String = 'Time Left';
 	
@@ -98,8 +100,9 @@ class ClientPrefs
 	
 	@saveVar public static var noteOffset:Int = 0;
 	
-	@saveVar public static var noteSkin:String = 'Vanilla';
+	@saveVar public static var quants:Bool = false;
 	
+	// @saveVar public static var noteSkin:String = 'Vanilla';
 	@saveVar public static var comboOffset:Array<Int> = [0, 0, 0, 0];
 	
 	@saveVar public static var gameplaySettings:Map<String, Dynamic> = [
@@ -258,7 +261,8 @@ class ClientPrefs
 	 */
 	public static function load()
 	{
-		if(FlxG.save.data == null){
+		if (FlxG.save.data == null)
+		{
 			FlxG.save.bind('funkin');
 			FlxG.save.flush();
 		}

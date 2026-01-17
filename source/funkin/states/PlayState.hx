@@ -893,7 +893,7 @@ class PlayState extends MusicBeatState
 		Paths.sound('missnote3');
 		
 		if (PauseSubState.songName != null) Paths.music(PauseSubState.songName);
-		else if (ClientPrefs.pauseMusic != 'None') Paths.music(Paths.sanitize(ClientPrefs.pauseMusic));
+		else Paths.music(Paths.sanitize('breakfast'));
 		
 		// Updating Discord Rich Presence.
 		resetDiscordRPC();

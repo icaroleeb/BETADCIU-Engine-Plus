@@ -334,7 +334,7 @@ class QuantNotesSubState extends MusicBeatSubstate
 	function resetValue(selected:Int, type:Int)
 	{
 		curValue = 0;
-		if (ClientPrefs.noteSkin == "Quants")
+		if (ClientPrefs.quants)
 		{
 			ClientPrefs.quantHSV[selected][type] = defaults[selected][type];
 			switch (type)
@@ -345,19 +345,6 @@ class QuantNotesSubState extends MusicBeatSubstate
 					shaderArray[selected].saturation = defaults[selected][type];
 				case 2:
 					shaderArray[selected].lightness = defaults[selected][type];
-			}
-		}
-		else if (ClientPrefs.noteSkin == "QuantStep")
-		{
-			ClientPrefs.quantHSV[selected][type] = quantStepmania[selected][type];
-			switch (type)
-			{
-				case 0:
-					shaderArray[selected].hue = quantStepmania[selected][type];
-				case 1:
-					shaderArray[selected].saturation = quantStepmania[selected][type];
-				case 2:
-					shaderArray[selected].lightness = quantStepmania[selected][type];
 			}
 		}
 		

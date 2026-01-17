@@ -26,9 +26,9 @@ class PsychHUD extends BaseHUD
 	var ratingPrefix:String = "";
 	var ratingSuffix:String = '';
 	var textDivider = '|';
-	var showRating:Bool = true;
-	var showRatingNum:Bool = true;
-	var showCombo:Bool = true;
+	var showRating:Bool = ClientPrefs.showRatings;
+	var showRatingNum:Bool = ClientPrefs.showRatings;
+	var showCombo:Bool = ClientPrefs.showRatings;
 	var updateIconPos:Bool = true;
 	var updateIconScale:Bool = true;
 	var comboOffsets:Null<Array<Int>> = null; // So u can overwrite the users combo offset if needed without messing with clientprefs

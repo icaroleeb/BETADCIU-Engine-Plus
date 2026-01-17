@@ -41,8 +41,6 @@ class MainMenuState extends MusicBeatState
 		#if MODS_ALLOWED
 		Mods.pushGlobalMods();
 		#end
-		funkin.Mods.loadTopMod();
-		
 		DiscordClient.changePresence("In the Menus");
 		
 		FlxG.cameras.reset();
