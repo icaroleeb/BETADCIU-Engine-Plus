@@ -78,8 +78,8 @@ class Init extends FlxState
 		
 		super.create();
 		
-		// final nextState:Class<FlxState> = Main.startMeta.skipSplash || !ClientPrefs.toggleSplashScreen ? Main.startMeta.initialState : Splash;
-		final nextState = funkin.states.editors.WIPNoteSkinEditor;
+		final nextState:Class<FlxState> = Main.startMeta.skipSplash || !ClientPrefs.toggleSplashScreen ? Main.startMeta.initialState : Splash;
+		// final nextState = funkin.states.editors.WIPNoteSkinEditor;
 		FlxG.switchState(() -> Type.createInstance(nextState, []));
 	}
 }
