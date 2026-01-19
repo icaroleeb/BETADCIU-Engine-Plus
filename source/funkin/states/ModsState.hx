@@ -56,7 +56,7 @@ class ModsState extends MusicBeatState
 		
 		txtbox = new FlxSprite(50).makeGraphic(200, 500, FlxColor.BLACK);
 		txtbox.alpha = 0.4;
-		txtbox.screenCenter(FlxAxes.Y);
+		txtbox.screenCenter(Y);
 		add(txtbox);
 		
 		listtxt = new FlxText(txtbox.x, txtbox.y);
@@ -140,7 +140,7 @@ class ModsState extends MusicBeatState
 		
 		Mods.currentModDirectory = modList[curDir].folder;
 		
-		box.screenCenter(FlxAxes.X);
+		box.screenCenter(X);
 		box.x += 125;
 		
 		var iPath = pack == null ? Paths.image("branding/icon/fallback") : Paths.image(pack.iconFile);
