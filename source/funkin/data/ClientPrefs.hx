@@ -254,6 +254,28 @@ class ClientPrefs
 		save.close();
 	}
 	
+	public static function tryBindingSave(name:String = 'funkin')
+	{
+		if (FlxG.save.bind(name, CoolUtil.getSavePath()) == false) // coudlnt bind the save so just fallback
+		{
+			@:privateAccess
+			{
+				final file = FlxSave.validate(FlxG.stage.application.meta.get('file'));
+				final path = SaveUtil.getPath('', '$file/$name');
+				
+				if (FileSystem.exists(path))
+				{
+					final corruptedPath = path.withoutExtension() + ' (corrupted) ${Date.now().toString().replace(':', '_')}.sol';
+					FileSystem.rename(path, corruptedPath);
+					
+					trace('Save was corrupted. corrupted save was placed at $corruptedPath');
+				}
+			}
+			
+			FlxG.save.bind(name, CoolUtil.getSavePath());
+		}
+	}
+	
 	/**
 	 * You can add your own functionality here if needed beyond what `@saveVar` does. 
 	 * 
@@ -261,12 +283,6 @@ class ClientPrefs
 	 */
 	public static function load()
 	{
-		if (FlxG.save.data == null)
-		{
-			FlxG.save.bind('funkin');
-			FlxG.save.flush();
-		}
-		
 		if (FlxG.save.data.volume != null) FlxG.sound.volume = FlxG.save.data.volume;
 		
 		if (FlxG.save.data.mute != null) FlxG.sound.muted = FlxG.save.data.mute;
@@ -333,5 +349,56 @@ class ClientPrefs
 		}
 		
 		return copiedArray;
+	}
+}
+
+@:access(flixel.util.FlxSave)
+private class SaveUtil
+{
+	static function getPath(localPath:String, name:String):String
+	{
+		// Avoid ever putting .sol files directly in AppData
+		if (localPath == "") localPath = getDefaultLocalPath();
+		
+		var directory = lime.system.System.applicationStorageDirectory;
+		var path = haxe.io.Path.normalize('$directory/../../../$localPath') + "/";
+		
+		name = StringTools.replace(name, "//", "/");
+		name = StringTools.replace(name, "//", "/");
+		
+		if (StringTools.startsWith(name, "/"))
+		{
+			name = name.substr(1);
+		}
+		
+		if (StringTools.endsWith(name, "/"))
+		{
+			name = name.substring(0, name.length - 1);
+		}
+		
+		if (name.indexOf("/") > -1)
+		{
+			var split = name.split("/");
+			name = "";
+			
+			for (i in 0...(split.length - 1))
+			{
+				name += split[i] + "/";
+			}
+			
+			name += split[split.length - 1];
+		}
+		
+		return path + name + ".sol";
+	}
+	
+	static function getDefaultLocalPath()
+	{
+		var meta = openfl.Lib.current.stage.application.meta;
+		var path = meta["company"];
+		if (path == null || path == "") path = "HaxeFlixel";
+		else path = FlxSave.validate(path);
+		
+		return path;
 	}
 }

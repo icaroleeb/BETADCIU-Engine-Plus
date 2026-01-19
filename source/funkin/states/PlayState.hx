@@ -2941,12 +2941,15 @@ class PlayState extends MusicBeatState
 					
 					if (!ClientPrefs.getGameplaySetting('practice', false) && !ClientPrefs.getGameplaySetting('botplay', false))
 					{
-						StoryMenuState.weekCompleted.set(WeekData.weeksList[storyMeta.curWeek], true);
-						
-						Highscore.saveWeekScore(WeekData.getWeekFileName(), storyMeta.score, storyMeta.difficulty);
-						
-						FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
-						FlxG.save.flush();
+						if (WeekData.weeksList[storyMeta.curWeek] != null)
+						{
+							StoryMenuState.weekCompleted.set(WeekData.weeksList[storyMeta.curWeek], true);
+							
+							Highscore.saveWeekScore(WeekData.getWeekFileName(), storyMeta.score, storyMeta.difficulty);
+							
+							FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
+							FlxG.save.flush();
+						}
 					}
 					changedDifficulty = false;
 				}

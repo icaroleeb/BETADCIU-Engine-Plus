@@ -54,7 +54,7 @@ class Main extends Sprite
 		
 		// load save data before creating FlxGame
 		ClientPrefs.loadDefaultKeys();
-		FlxG.save.bind('funkin', CoolUtil.getSavePath());
+		ClientPrefs.tryBindingSave('funkin');
 		
 		final game = new funkin.backend.FunkinGame(startMeta.width, startMeta.height, Init, startMeta.fps, startMeta.fps, true, startMeta.startFullScreen);
 		
