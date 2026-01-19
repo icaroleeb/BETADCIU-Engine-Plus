@@ -1169,6 +1169,54 @@ class PlayState extends MusicBeatState
 		}
 	}
 	
+	var alreadyMade = false;
+	public function generateArrows()
+	{
+		if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
+		
+		for (lane in 0...SONG.lanes)
+		{
+			final character = lane == 1 ? dad : boyfriend;
+			final isPlayer = lane != 1;
+			
+			final auto = (lane != 0 || cpuControlled);
+			
+			var strums = new PlayField(0, 0, SONG.keys, character, isPlayer, auto, lane);
+			
+			scripts.call('preReceptorGeneration', [strums, lane]);
+			strums.generateReceptors();
+			strums.fadeIn(isStoryMode || skipArrowStartTween);
+			strums.ID = lane;
+			
+			playFields.add(strums);
+			
+			strums.noteHitCallback.add(noteHit);
+			
+			if (lane == 0) strums.noteMissCallback.add(noteMiss);
+			else if (lane == 1)
+			{
+				if (!ClientPrefs.opponentStrums) strums.baseAlpha = 0;
+				else if (ClientPrefs.middleScroll) strums.baseAlpha = 0.35;
+			}
+		}
+		
+		scripts.set('playerStrums', playerStrums);
+		scripts.set('opponentStrums', opponentStrums);
+		scripts.set('playFields', playFields);
+		
+		modManager.receptors = [for (i in playFields) i.members];
+		
+		modManager.lanes = SONG.lanes;
+		
+		scripts.call('postReceptorGeneration');
+		
+		modManager.registerEssentialModifiers();
+		modManager.registerDefaultModifiers();
+		scripts.call('postModifierRegister', []);
+
+		alreadyMade = true;
+	}
+
 	var startTimer:FlxTimer = null;
 	var finishTimer:FlxTimer = null;
 	
@@ -1190,47 +1238,8 @@ class PlayState extends MusicBeatState
 		
 		if (ret != ScriptConstants.Function_Stop)
 		{
-			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
-			
-			for (lane in 0...SONG.lanes)
-			{
-				final character = lane == 1 ? dad : boyfriend;
-				final isPlayer = lane != 1;
-				
-				final auto = (lane != 0 || cpuControlled);
-				
-				var strums = new PlayField(0, 0, SONG.keys, character, isPlayer, auto, lane);
-				
-				scripts.call('preReceptorGeneration', [strums, lane]);
-				strums.generateReceptors();
-				strums.fadeIn(isStoryMode || skipArrowStartTween);
-				strums.ID = lane;
-				
-				playFields.add(strums);
-				
-				strums.noteHitCallback.add(noteHit);
-				
-				if (lane == 0) strums.noteMissCallback.add(noteMiss);
-				else if (lane == 1)
-				{
-					if (!ClientPrefs.opponentStrums) strums.baseAlpha = 0;
-					else if (ClientPrefs.middleScroll) strums.baseAlpha = 0.35;
-				}
-			}
-			
-			scripts.set('playerStrums', playerStrums);
-			scripts.set('opponentStrums', opponentStrums);
-			scripts.set('playFields', playFields);
-			
-			modManager.receptors = [for (i in playFields) i.members];
-			
-			modManager.lanes = SONG.lanes;
-			
-			scripts.call('postReceptorGeneration');
-			
-			modManager.registerEssentialModifiers();
-			modManager.registerDefaultModifiers();
-			scripts.call('postModifierRegister', []);
+			if(!alreadyMade)
+				generateArrows();
 			
 			new FlxTimer().start(countdownDelay, (t:FlxTimer) -> {
 				startedCountdown = true;

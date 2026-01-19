@@ -107,7 +107,7 @@ class StrumNote extends FlxSprite
 		var lastAnim:String = null;
 		if (animation.curAnim != null) lastAnim = animation.curAnim.name;
 		var br:String = texture;
-		isQuant = parent.quants;
+		isQuant = ClientPrefs.quants;
 		
 		if (NoteSkinHelper.instance.data.isPixel)
 		{
