@@ -1169,8 +1169,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 	
-	var alreadyMade = false;
-	public function generateArrows()
+	public function generatePlayfields()
 	{
 		if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 		
@@ -1200,10 +1199,6 @@ class PlayState extends MusicBeatState
 			}
 		}
 		
-		scripts.set('playerStrums', playerStrums);
-		scripts.set('opponentStrums', opponentStrums);
-		scripts.set('playFields', playFields);
-		
 		modManager.receptors = [for (i in playFields) i.members];
 		
 		modManager.lanes = SONG.lanes;
@@ -1212,11 +1207,10 @@ class PlayState extends MusicBeatState
 		
 		modManager.registerEssentialModifiers();
 		modManager.registerDefaultModifiers();
-		scripts.call('postModifierRegister', []);
-
-		alreadyMade = true;
+		
+		scripts.call('postModifierRegister');
 	}
-
+	
 	var startTimer:FlxTimer = null;
 	var finishTimer:FlxTimer = null;
 	
@@ -1238,8 +1232,8 @@ class PlayState extends MusicBeatState
 		
 		if (ret != ScriptConstants.Function_Stop)
 		{
-			if(!alreadyMade)
-				generateArrows();
+			// if its not 0 we can assume this was manually triggered
+			if (playFields.length == 0) generatePlayfields();
 			
 			new FlxTimer().start(countdownDelay, (t:FlxTimer) -> {
 				startedCountdown = true;
@@ -1326,7 +1320,7 @@ class PlayState extends MusicBeatState
 			{
 				ease: FlxEase.cubeInOut,
 				onComplete: function(twn:FlxTween) {
-					remove(spr);
+					remove(spr, true);
 					spr.destroy();
 				}
 			});
