@@ -12,6 +12,7 @@ import funkin.data.StageData;
 class Stage extends FlxTypedContainer<FlxBasic>
 {
 	public var curStageScript:Null<FunkinScript> = null;
+	public var toAdd:Array<Dynamic> = [];
 	
 	public var curStage = "stage";
 	public var stageData:StageFile = funkin.data.StageData.generateDefault();
@@ -33,7 +34,7 @@ class Stage extends FlxTypedContainer<FlxBasic>
 		switch (script.scriptType)
 		{
 			case HSCRIPT:
-				script.set("add", add);
+				script.set("add", toAdd);
 				script.set("stage", this);
 				script.call("onLoad");
 				
