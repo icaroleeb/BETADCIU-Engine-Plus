@@ -13,6 +13,7 @@ class Stage extends FlxTypedContainer<FlxBasic>
 {
 	public var curStageScript:Null<FunkinScript> = null;
 	public var toAdd:Array<Dynamic> = [];
+	public var toAddFront:Array<Dynamic> = [];
 	
 	public var curStage = "stage";
 	public var stageData:StageFile = funkin.data.StageData.generateDefault();

@@ -61,14 +61,16 @@ class FunkinLua extends FunkinScript
 	var gonnaClose:Bool = false;
 	
 	public var accessedProps:Map<String, Dynamic> = null;
+	public var daScriptType:String = "";
 	
-	public function new(script:String, ?name:String)
+	public function new(script:String, daScriptType:String = "", ?name:String)
 	{
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
 		if (name == null) name = script;
+		
 		// trace('Lua version: ' + Lua.version());
 		// trace("LuaJIT version: " + Lua.versionJIT());
 		
@@ -97,6 +99,7 @@ class FunkinLua extends FunkinScript
 			trace(e);
 			return;
 		}
+		this.daScriptType = daScriptType.trim();
 		scriptType = LUA;
 		scriptName = name;
 		trace('lua file loaded succesfully:' + script);
@@ -1610,37 +1613,50 @@ class FunkinLua extends FunkinScript
 			}
 		});
 		Lua_helper.add_callback(lua, "addLuaSprite", function(tag:String, front:Bool = false) {
-			if (PlayState.instance.modchartSprites.exists(tag))
+			if (daScriptType == 'stage')
 			{
-				var shit:ModchartSprite = PlayState.instance.modchartSprites.get(tag);
-				if (!shit.wasAdded)
+				if (PlayState.instance.modchartSprites.exists(tag))
 				{
-					if (front)
+					var shit = PlayState.instance.modchartSprites.get(tag);
+					
+					if (front) PlayState.instance.stage.toAddFront.push(shit);
+					else PlayState.instance.stage.toAdd.push(shit);
+				}
+			}
+			else
+			{
+				if (PlayState.instance.modchartSprites.exists(tag))
+				{
+					var shit:ModchartSprite = PlayState.instance.modchartSprites.get(tag);
+					if (!shit.wasAdded)
 					{
-						getInstance().add(shit);
-					}
-					else
-					{
-						if (PlayState.instance.isDead)
+						if (front)
 						{
-							GameOverSubstate.instance.insert(GameOverSubstate.instance.members.indexOf(GameOverSubstate.instance.boyfriend), shit);
+							getInstance().add(shit);
 						}
 						else
 						{
-							var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gfGroup);
-							if (PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup) < position)
+							if (PlayState.instance.isDead)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
+								GameOverSubstate.instance.insert(GameOverSubstate.instance.members.indexOf(GameOverSubstate.instance.boyfriend), shit);
 							}
-							else if (PlayState.instance.members.indexOf(PlayState.instance.dadGroup) < position)
+							else
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.dadGroup);
+								var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gfGroup);
+								if (PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup) < position)
+								{
+									position = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
+								}
+								else if (PlayState.instance.members.indexOf(PlayState.instance.dadGroup) < position)
+								{
+									position = PlayState.instance.members.indexOf(PlayState.instance.dadGroup);
+								}
+								PlayState.instance.insert(position, shit);
 							}
-							PlayState.instance.insert(position, shit);
 						}
+						shit.wasAdded = true;
+						// trace('added a thing: ' + tag);
 					}
-					shit.wasAdded = true;
-					// trace('added a thing: ' + tag);
 				}
 			}
 		});

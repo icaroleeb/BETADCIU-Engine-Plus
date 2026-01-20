@@ -621,6 +621,12 @@ class PlayState extends MusicBeatState
 			stage.add(boyfriendGroup);
 		}
 		
+		if (stage.toAddFront != null)
+		{
+			for (spriteStage in stage.toAddFront)
+				add(spriteStage);
+		}
+		
 		setOnHScripts('camGame', camGame);
 		setOnHScripts('camHUD', camHUD);
 		setOnHScripts('camOther', camOther);
@@ -677,29 +683,28 @@ class PlayState extends MusicBeatState
 		var gfVersion:String = SONG.gfVersion;
 		if (gfVersion == null || gfVersion.length < 1) SONG.gfVersion = gfVersion = 'gf';
 		
-		if (!stageData.hide_girlfriend)
-		{
-			gf = CharacterBuilder.fromName(0, 0, gfVersion);
-			startCharacterPos(gf);
-			gf.scrollFactor.set(0.95, 0.95);
-			gfGroup.add(gf);
-			startCharacterScript(gf.curCharacter, gf);
-			
-			setOnScripts('gf', gf);
-			setOnScripts('gfGroup', gfGroup);
-		}
+		// if (!stageData.hide_girlfriend)
+		// {
+		gf = CharacterBuilder.fromName(0, 0, gfVersion);
+		startCharacterPos(gf);
+		gf.scrollFactor.set(0.95, 0.95);
+		add(gf);
+		startCharacterScript(gf.curCharacter, gf);
+		
+		setOnScripts('gf', gf);
+		setOnScripts('gfGroup', gfGroup);
+		// }
 		
 		dad = CharacterBuilder.fromName(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
-		dadGroup.add(dad);
+		add(dad);
 		startCharacterScript(dad.curCharacter, dad);
 		dadMap.set(dad.curCharacter, dad);
 		
 		boyfriend = CharacterBuilder.fromName(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
-		boyfriendGroup.add(boyfriend);
+		add(boyfriend);
 		startCharacterScript(boyfriend.curCharacter, boyfriend);
-		boyfriendMap.set(boyfriend.curCharacter, boyfriend);
 		
 		setOnScripts('dad', dad);
 		setOnScripts('dadGroup', dadGroup);
@@ -4774,10 +4779,13 @@ class PlayState extends MusicBeatState
 			stage.destroy();
 		}
 		
-		for (i in stage.toAdd)
+		if (stage.toAdd != null)
 		{
-			remove(i);
-			i.destroy();
+			for (i in stage.toAdd)
+			{
+				remove(i);
+				i.destroy();
+			}
 		}
 		
 		// add new Stage
@@ -4792,9 +4800,12 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		stage.buildStage();
 		
-		for (spriteStage in stage.toAdd)
-			add(spriteStage);
-			
+		if (stage.toAdd != null)
+		{
+			for (spriteStage in stage.toAdd)
+				add(spriteStage);
+		}
+		
 		if (stage.curStageScript != null)
 		{
 			switch (stage.curStageScript.scriptType)
@@ -4817,6 +4828,12 @@ class PlayState extends MusicBeatState
 		{
 			if (!stageData.hide_girlfriend && gf != null) stage.add(gfGroup);
 			stage.add(chars);
+		}
+		
+		if (stage.toAddFront != null)
+		{
+			for (spriteStage in stage.toAddFront)
+				add(spriteStage);
 		}
 		
 		stage.setupCreatePost(stage.curStageScript);
