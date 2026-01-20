@@ -359,7 +359,7 @@ class Paths
 	 */
 	public static inline function sanitize(path:String):String
 	{
-		return ~/[^- a-zA-Z0-9]+\//g.replace(path, '').replace(' ', '-').trim().toLowerCase();
+		return ~/[^- a-zA-Z0-9..\/]+\//g.replace(path, '').replace(' ', '-').trim().toLowerCase();
 	}
 	
 	/**
@@ -426,6 +426,7 @@ class Paths
 		if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 		{
 			final fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
+			// trace(fileToCheck);
 			if (FileSystem.exists(fileToCheck))
 			{
 				return fileToCheck;
@@ -437,7 +438,7 @@ class Paths
 			final fileToCheck:String = mods(mod + '/' + key);
 			if (FileSystem.exists(fileToCheck)) return fileToCheck;
 		}
-		return '$MODS_DIRECTORY/$key';
+		return mods(key);
 	}
 	#end
 }
