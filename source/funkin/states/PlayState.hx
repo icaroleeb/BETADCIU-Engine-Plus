@@ -4820,5 +4820,6 @@ class PlayState extends MusicBeatState
 		}
 		
 		stage.setupCreatePost(stage.curStageScript);
+		refreshZ(stage);
 	}
 }
