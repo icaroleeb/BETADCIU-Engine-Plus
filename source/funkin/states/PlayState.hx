@@ -177,6 +177,7 @@ class PlayState extends MusicBeatState
 	public static var curStage:String = 'stage';
 	
 	public var stage:Stage;
+	public var preloadStage:Stage; // preload Stage :)
 	
 	public var doof:DialogueBox;
 	
@@ -432,10 +433,10 @@ class PlayState extends MusicBeatState
 		return (cpuControlled = val);
 	}
 	
-	function setStageData(stageData:StageFile)
+	function setStageData(stageData:StageFile, isChangeStage:Bool = false)
 	{
 		defaultCamZoom = stageData.defaultZoom;
-		FlxG.camera.zoom = stageData.defaultZoom;
+		if (!isChangeStage) FlxG.camera.zoom = stageData.defaultZoom;
 		// for(c in followingCams) c.zoom = stageData.defaultZoom;
 		isPixelStage = stageData.isPixelStage;
 		BF_X = stageData.boyfriend[0];
@@ -587,6 +588,9 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		stage.buildStage();
 		
+		for (spriteStage in stage.toAdd)
+			add(spriteStage);
+			
 		if (stage.curStageScript != null)
 		{
 			switch (stage.curStageScript.scriptType)
@@ -610,9 +614,8 @@ class PlayState extends MusicBeatState
 		
 		if (callOnHScripts("onAddSpriteGroups", []) != Globals.Function_Stop)
 		{
-			for (spriteStage in stage.toAdd)
-				add(spriteStage);
-				
+			add(stage);
+			
 			stage.add(gfGroup);
 			stage.add(dadGroup);
 			stage.add(boyfriendGroup);
@@ -2007,6 +2010,55 @@ class PlayState extends MusicBeatState
 				}
 				
 				addCharacterToList(event.value2, charType);
+			case 'Change Stage':
+				if (event.value1 != null)
+				{
+					if (preloadStage != null)
+					{
+						preloadStage = new Stage(event.value1);
+						
+						for (preloadSprite in preloadStage.toAdd)
+							add(preloadSprite);
+							
+						if (stage.curStageScript != null)
+						{
+							switch (stage.curStageScript.scriptType)
+							{
+								case HSCRIPT:
+									hscriptArray.push(cast stage.curStageScript);
+									
+								case LUA:
+									#if LUA_ALLOWED
+									luaArray.push(cast stage.curStageScript);
+									#end
+							}
+							funkyScripts.push(stage.curStageScript);
+							trace(stage.curStageScript.scriptName);
+						}
+						
+						add(preloadStage);
+						
+						if (stage.curStageScript != null)
+						{
+							switch (stage.curStageScript.scriptType)
+							{
+								case HSCRIPT:
+									hscriptArray.remove(cast stage.curStageScript);
+									
+								case LUA:
+									#if LUA_ALLOWED
+									luaArray.remove(cast stage.curStageScript);
+									#end
+							}
+							funkyScripts.remove(stage.curStageScript);
+							trace(stage.curStageScript.scriptName);
+						}
+						
+						remove(preloadStage);
+						preloadStage.destroy();
+						trace(event.value1 + 'has loaded');
+					}
+				}
 			default:
 				callEventScript(event.event, 'onPush', [event], [event.value1, event.value2]);
 		}
@@ -4690,9 +4742,15 @@ class PlayState extends MusicBeatState
 		super.startOutro(onOutroComplete);
 	}
 	
-	public static function changeStage(stageName:String)
+	public function changeStage(stageName:String)
 	{
 		// remove current stage
+		
+		for (chars in [dadGroup, boyfriendGroup])
+		{
+			if (gf != null) stage.remove(gfGroup);
+			stage.remove(chars);
+		}
 		
 		if (stage.curStageScript != null)
 		{
@@ -4706,8 +4764,14 @@ class PlayState extends MusicBeatState
 					luaArray.remove(cast stage.curStageScript);
 					#end
 			}
-			funkyScripts.push(stage.curStageScript);
+			funkyScripts.remove(stage.curStageScript);
 			trace(stage.curStageScript.scriptName);
+		}
+		
+		if (stage != null)
+		{
+			remove(stage);
+			stage.destroy();
 		}
 		
 		for (i in stage.toAdd)
@@ -4716,19 +4780,21 @@ class PlayState extends MusicBeatState
 			i.destroy();
 		}
 		
-		remove(stage);
-		stage.destroy();
+		// add new Stage
 		
-		// add new stage
+		curStage = stageName;
 		
 		stage = new Stage(curStage);
 		stageData = stage.stageData;
-		setStageData(stageData); // change to setter
+		setStageData(stageData, true); // change to setter
 		setOnScripts('stage', stage);
 		
 		// STAGE SCRIPTS
 		stage.buildStage();
 		
+		for (spriteStage in stage.toAdd)
+			add(spriteStage);
+			
 		if (stage.curStageScript != null)
 		{
 			switch (stage.curStageScript.scriptType)
@@ -4745,9 +4811,14 @@ class PlayState extends MusicBeatState
 			trace(stage.curStageScript.scriptName);
 		}
 		
-		if (isPixelStage)
+		add(stage);
+		
+		for (chars in [dadGroup, boyfriendGroup])
 		{
-			introSoundsSuffix = '-pixel';
+			if (!stageData.hide_girlfriend && gf != null) stage.add(gfGroup);
+			stage.add(chars);
 		}
+		
+		stage.setupCreatePost(stage.curStageScript);
 	}
 }

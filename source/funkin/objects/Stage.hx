@@ -34,13 +34,48 @@ class Stage extends FlxTypedContainer<FlxBasic>
 		switch (script.scriptType)
 		{
 			case HSCRIPT:
-				script.set("add", toAdd);
+				script.set("add", function(sprite:FlxSprite) toAdd.push(sprite));
 				script.set("stage", this);
 				script.call("onLoad");
 				
 			case LUA:
 				#if LUA_ALLOWED
 				script.call("onCreate", []);
+				#end
+		}
+	}
+	
+	public function setupCreatePost(script:FunkinScript)
+	{
+		curStageScript = script;
+		
+		switch (script.scriptType)
+		{
+			case HSCRIPT:
+				script.call("onCreatePost");
+			case LUA:
+				#if LUA_ALLOWED
+				script.call("onCreatePost", []);
+				#end
+		}
+	}
+	
+	function destroyScript(script:FunkinScript)
+	{
+		curStageScript = script;
+		
+		switch (script.scriptType)
+		{
+			case HSCRIPT:
+				script.call("onDestroy");
+				script.call("onStop");
+				script.call("onRemove");
+				
+			case LUA:
+				#if LUA_ALLOWED
+				script.call("onDestroy", []);
+				script.call("onStop", []);
+				script.call("onRemove", []);
 				#end
 		}
 	}
