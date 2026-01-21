@@ -14,13 +14,17 @@ class PsychHUD extends BaseHUD
 	var ratingGroup:FlxTypedGroup<FlxSprite>;
 	var ratingNumGroup:FlxTypedGroup<FlxSprite>;
 	
-	var healthBar:Bar;
-	var iconP1:HealthIcon;
-	var iconP2:HealthIcon;
-	var scoreTxt:FlxText;
+	public var healthBar:Bar;
+	public var defaultBar:Bool = true;
 	
-	var timeTxt:FlxText;
-	var timeBar:Bar;
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
+	
+	public var scoreTxt:FlxText;
+	
+	public var timeTxt:FlxText;
+	public var timeBar:Bar;
+	
 	var pixelZoom:Float = 6; // idgaf
 	
 	var ratingPrefix:String = "";
@@ -33,9 +37,12 @@ class PsychHUD extends BaseHUD
 	var updateIconScale:Bool = true;
 	var comboOffsets:Null<Array<Int>> = null; // So u can overwrite the users combo offset if needed without messing with clientprefs
 	
+	public static var instance:PsychHUD;
+	
 	// TODO: Make combo shit change for week 6, the ground work is already there so incase someone else wants to come on in and mess w it.
 	override function init()
 	{
+		instance = this;
 		name = 'PSYCH';
 		
 		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.downScroll ? 0.89 : 0.11), 'healthBar', function() return parent.health, parent.healthBounds.min, parent.healthBounds.max);
@@ -127,7 +134,7 @@ class PsychHUD extends BaseHUD
 		final tempScore:String = 'Score: ${FlxStringUtil.formatMoney(score, false)}'
 			+ (!parent.instakillOnMiss ? ' $textDivider Misses: ${misses}' : "")
 			+ ' $textDivider Accuracy: ${str}';
-		
+			
 		if (!missed && !parent.cpuControlled) doScoreBop();
 		
 		scoreTxt.text = '${tempScore}\n';
@@ -265,10 +272,10 @@ class PsychHUD extends BaseHUD
 			rating.zIndex = 999;
 			if (ratingGroup.members.length > 1) for (i in ratingGroup.members)
 				ratingGroup.zIndex = ratingGroup.zIndex - 1;
-
+				
 			ratingGroup.add(rating);
 			ratingGroup.sort(funkin.utils.SortUtil.sortByZ, flixel.util.FlxSort.ASCENDING);
-
+			
 			if (!PlayState.isPixelStage)
 			{
 				rating.antialiasing = ClientPrefs.globalAntialiasing;

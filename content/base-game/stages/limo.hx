@@ -73,9 +73,9 @@ function onLoad()
 
 function onCreatePost()
 {
-	dadGroup.zIndex = 8;
-	boyfriendGroup.zIndex = 8;
-	gfGroup.zIndex = 6;
+	dad.zIndex = 8;
+	boyfriend.zIndex = 8;
+	gf.zIndex = 6;
 	
 	resetFastCar();
 }

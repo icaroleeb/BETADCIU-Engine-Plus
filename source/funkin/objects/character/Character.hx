@@ -16,6 +16,7 @@ typedef AnimArray =
 	var loop:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
+	var playerOffsets:Array<Int>;
 }
 
 class Character extends FlxSprite
@@ -54,6 +55,7 @@ class Character extends FlxSprite
 	public var animTimer:Float = 0;
 	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;
+	public var isAnimateAtlas:Bool = false;
 	
 	/**
 	 * Multiplier of how long a character holds the sing pose
@@ -88,10 +90,14 @@ class Character extends FlxSprite
 	 */
 	public var positionArray:Array<Float> = [0, 0];
 	
+	public var playerPositionArray:Array<Float> = [0, 0];
+	
 	/**
 	 * Camera offsets defined by the json
 	 */
 	public var cameraPosition:Array<Float> = [0, 0];
+	
+	public var playerCameraPosition:Array<Float> = [0, 0];
 	
 	/**
 	 * how much the ghost anims move when played
@@ -156,6 +162,10 @@ class Character extends FlxSprite
 	
 	public var healthColour:Int = FlxColor.RED;
 	
+	// BETADCIU Engine Stuff
+	public var flipMode:Bool = false;
+	public var iconColor:String;
+	
 	public function new(x:Float = 0, y:Float = 0, character:String = 'bf', ?isPlayer:Bool = false, ?skipCreate:Bool = false)
 	{
 		super(x, y);
@@ -219,8 +229,10 @@ class Character extends FlxSprite
 		if (!skipJsonStuff) imageFile = json.image;
 		skipJsonStuff = false;
 		jsonScale = json.scale;
-		positionArray = json.position;
-		cameraPosition = json.camera_position;
+		positionArray = ((!debugMode && isPlayer && json.playerposition != null) ? json.playerposition : json.position);
+		playerPositionArray = (json.playerposition != null ? json.playerposition : json.position);
+		cameraPosition = (isPlayer && json.player_camera_position != null ? json.player_camera_position : json.camera_position);
+		playerCameraPosition = (json.player_camera_position != null ? json.player_camera_position : json.camera_position);
 		
 		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
@@ -245,8 +257,12 @@ class Character extends FlxSprite
 			// temp keep
 			healthColorArray = json.healthbar_colors;
 			
-			healthColour = FlxColor.fromRGB(json.healthbar_colors[0], json.healthbar_colors[1], json.healthbar_colors[2]);
+			healthColour = FlxColor.fromRGB(healthColorArray[0], healthColorArray[1], healthColorArray[2]);
 		}
+		
+		var colorPreString = FlxColor.fromRGB(healthColorArray[0], healthColorArray[1], healthColorArray[2]);
+		var colorPreCut = colorPreString.toHexString();
+		iconColor = colorPreCut.substring(2);
 		
 		animationsArray = json.animations;
 		if (animationsArray != null && animationsArray.length > 0)

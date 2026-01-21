@@ -8,6 +8,9 @@ import llua.Convert;
 #end
 
 import funkin.states.*;
+import funkin.objects.character.Character;
+import funkin.objects.character.CharacterBuilder;
+import funkin.game.huds.PsychHUD;
 
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
@@ -2439,6 +2442,271 @@ class FunkinLua extends FunkinScript
 		call('onCreate', []);
 		// PlayState.instance.callOnScripts('onCreate', []);
 		#end
+	}
+	
+	public static function makeLuaCharacter(tag:String, character:String, isPlayer:Bool = false, flipped:Bool = false)
+	{
+		tag = tag.replace('.', '');
+		
+		var animationName:String = "no way anyone have an anim name this big";
+		var animationFrame:Int = 0;
+		var position:Int = -1;
+		var oldChar:String = "";
+		
+		/*
+			if (PlayState.instance.modchartCharacters.get(tag) != null)
+			{
+				var daChar:Character = PlayState.instance.modchartCharacters.get(tag);
+				oldChar = daChar.curCharacter;
+				
+				if (daChar.isAnimateAtlas)
+				{
+					if (daChar.getAnimationName().startsWith('sing'))
+					{
+						animationName = Std.string(daChar.atlas.anim.curInstance);
+						animationFrame = Std.int(daChar.atlas.anim.curFrame);
+					}
+				}
+				else
+				{
+					if (daChar.animation.curAnim.name.startsWith('sing'))
+					{
+						animationName = daChar.animation.curAnim.name;
+						animationFrame = daChar.animation.curAnim.curFrame;
+					}
+				}
+				position = LuaUtils.getTargetInstance().members.indexOf(daChar);
+			}
+		 */
+		
+		// LuaUtils.resetCharacterTag(tag);
+		var leSprite:Character = new Character(0, 0, character, isPlayer);
+		// leSprite.flipMode = flipped;
+		PlayState.instance.modchartCharacters.set(tag, leSprite); // yes
+		var shit:Character = PlayState.instance.modchartCharacters.get(tag);
+		getInstance().add(shit);
+		
+		if (position >= 0) // this should keep them in the same spot if they switch
+		{
+			getInstance().remove(shit, true);
+			getInstance().insert(position, shit);
+		}
+		
+		var stageData = PlayState.instance.stage.stageData;
+		var charX:Float = 0;
+		var charY:Float = (flipped ? 350 : 0);
+		
+		if (!isPlayer)
+		{
+			// if (flipped) shit.flipMode = true;
+			
+			charX = shit.positionArray[0];
+			charY = shit.positionArray[1];
+			
+			shit.x = PlayState.instance.DAD_X + charX;
+			shit.y = PlayState.instance.DAD_Y + charY;
+		}
+		else
+		{
+			// if (flipped) shit.flipMode = true;
+			
+			var charX:Float = 0;
+			var charY:Float = (!flipped ? 0 : 350);
+			
+			charX = shit.playerPositionArray[0];
+			charY = shit.playerPositionArray[1];
+			
+			shit.x = PlayState.instance.BF_X + charX;
+			shit.y = PlayState.instance.BF_Y + charY;
+		}
+		
+		if (shit.animOffsets.exists(animationName)) shit.playAnim(animationName, true, false, animationFrame);
+		
+		// if (oldChar != "") shit.pastCharacter = oldChar;
+		// PlayState.instance.startCharacterScript(shit.curCharacter);
+	}
+	
+	// trying to do some auto stuff so i don't have to set manual x and y values
+	public static function changeBFAuto(id:String, ?flipped:Bool = false, ?dontDestroy:Bool = false)
+	{
+		var animationName:String = "no way anyone have an anim name this big";
+		var animationFrame:Int = 0;
+		// var oldChar:String = PlayState.instance.boyfriend.curCharacter;
+		
+		try
+		{
+			if (PlayState.instance.boyfriend.isAnimateAtlas)
+			{
+				/*
+					if (PlayState.instance.boyfriend.getAnimName().startsWith('sing'))
+					{
+						animationName = Std.string(PlayState.instance.boyfriend.atlas.anim.curInstance);
+						animationFrame = Std.int(PlayState.instance.boyfriend.atlas.anim.curFrame);
+					}
+				 */
+			}
+			else
+			{
+				if (PlayState.instance.boyfriend.animation.curAnim.name.startsWith('sing'))
+				{
+					animationName = PlayState.instance.boyfriend.animation.curAnim.name;
+					animationFrame = PlayState.instance.boyfriend.animation.curAnim.curFrame;
+				}
+			}
+		}
+		catch (e:Dynamic)
+		{
+			// do absolutely nothing
+		}
+		
+		// PlayState.instance.stopCharacterScripts(PlayState.instance.boyfriend.curCharacter);
+		// PlayState.instance.boyfriend.destroyAtlas();
+		PlayState.instance.remove(PlayState.instance.boyfriend);
+		PlayState.instance.boyfriend.destroy();
+		PlayState.instance.boyfriend = CharacterBuilder.fromName(0, 0, id, !flipped);
+		PlayState.instance.boyfriend.flipMode = flipped;
+		
+		var isFlipped = PlayState.instance.boyfriend.flipMode;
+		var charX:Float = 0;
+		var charY:Float = (isFlipped ? 350 : 0);
+		
+		var charX:Float = 0;
+		var charY:Float = (!isFlipped ? 0 : 350);
+		
+		charX = PlayState.instance.boyfriend.playerPositionArray[0];
+		charY = PlayState.instance.boyfriend.playerPositionArray[1];
+		
+		PlayState.instance.boyfriend.x = PlayState.instance.BF_X + charX;
+		PlayState.instance.boyfriend.y = PlayState.instance.BF_Y + charY;
+		
+		PlayState.instance.add(PlayState.instance.boyfriend);
+		
+		PsychHUD.instance.iconP1.changeIcon(PlayState.instance.boyfriend.healthIcon);
+		
+		if (PsychHUD.instance.defaultBar) PsychHUD.instance.reloadHealthBarColors();
+		
+		if (PlayState.instance.boyfriend.animOffsets.exists(animationName)) PlayState.instance.boyfriend.playAnim(animationName, true, false, animationFrame);
+		
+		// PlayState.instance.boyfriend.pastCharacter = oldChar;
+		PlayState.instance.setOnScripts('boyfriendName', PlayState.instance.boyfriend.curCharacter);
+		// PlayState.instance.startCharacterScript(PlayState.instance.boyfriend.curCharacter);
+	}
+	
+	public static function changeDadAuto(id:String, ?flipped:Bool = false, ?dontDestroy:Bool = false)
+	{
+		var animationName:String = "no way anyone have an anim name this big";
+		var animationFrame:Int = 0;
+		// var oldChar:String = PlayState.instance.dad.curCharacter;
+		
+		try
+		{
+			if (PlayState.instance.dad.isAnimateAtlas)
+			{
+				/*
+					if (PlayState.instance.dad.getAnimationName().startsWith('sing'))
+					{
+						animationName = Std.string(PlayState.instance.dad.atlas.anim.curInstance);
+						animationFrame = Std.int(PlayState.instance.dad.atlas.anim.curFrame);
+					}
+				 */
+			}
+			else
+			{
+				if (PlayState.instance.dad.animation.curAnim.name.startsWith('sing'))
+				{
+					animationName = PlayState.instance.dad.animation.curAnim.name;
+					animationFrame = PlayState.instance.dad.animation.curAnim.curFrame;
+				}
+			}
+		}
+		catch (e:Dynamic)
+		{
+			// do absolutely nothing
+		}
+		
+		// PlayState.instance.stopCharacterScripts(PlayState.instance.dad.curCharacter);
+		// PlayState.instance.dad.destroyAtlas();
+		PlayState.instance.remove(PlayState.instance.dad);
+		PlayState.instance.dad.destroy();
+		PlayState.instance.dad = CharacterBuilder.fromName(0, 0, id, flipped);
+		PlayState.instance.dad.flipMode = flipped;
+		
+		var isFlipped = PlayState.instance.dad.flipMode;
+		var charX:Float = 0;
+		var charY:Float = (isFlipped ? 350 : 0);
+		
+		var charX:Float = 0;
+		var charY:Float = (!isFlipped ? 0 : 350);
+		
+		charX = PlayState.instance.dad.positionArray[0];
+		charY = PlayState.instance.dad.positionArray[1];
+		
+		PlayState.instance.dad.x = PlayState.instance.DAD_X + charX;
+		PlayState.instance.dad.y = PlayState.instance.DAD_Y + charY;
+		
+		// PlayState.instance.addObject(PlayState.instance.bfTrail);
+		// PlayState.instance.bfTrail.resetTrail();
+		PlayState.instance.add(PlayState.instance.dad);
+		
+		PsychHUD.instance.iconP2.changeIcon(PlayState.instance.dad.healthIcon);
+		
+		if (PsychHUD.instance.defaultBar) PsychHUD.instance.reloadHealthBarColors();
+		
+		if (PlayState.instance.dad.animOffsets.exists(animationName)) PlayState.instance.dad.playAnim(animationName, true, false, animationFrame);
+		
+		// PlayState.instance.dad.pastCharacter = oldChar;
+		PlayState.instance.setOnScripts('dadName', PlayState.instance.dad.curCharacter);
+		// PlayState.instance.startCharacterScript(PlayState.instance.dad.curCharacter);
+	}
+	
+	public static function changeGFAuto(id:String, ?flipped:Bool = false, ?dontDestroy:Bool = false)
+	{ // not tested but i'm almost 100% sure it works
+		var animationName:String = "no way anyone have an anim name this big";
+		var animationFrame:Int = 0;
+		
+		try
+		{
+			if (PlayState.instance.gf.isAnimateAtlas)
+			{
+				/*
+					if (PlayState.instance.gf.getAnimationName().startsWith('sing'))
+					{
+						animationName = Std.string(PlayState.instance.gf.atlas.anim.curInstance);
+						animationFrame = Std.int(PlayState.instance.gf.atlas.anim.curFrame);
+					}
+				 */
+			}
+			else
+			{
+				if (PlayState.instance.gf.animation.curAnim.name.startsWith('sing'))
+				{
+					animationName = PlayState.instance.gf.animation.curAnim.name;
+					animationFrame = PlayState.instance.gf.animation.curAnim.curFrame;
+				}
+			}
+		}
+		catch (e:Dynamic)
+		{
+			// do absolutely nothing
+		}
+		
+		// PlayState.instance.stopCharacterScripts(PlayState.instance.gf.curCharacter);
+		// PlayState.instance.gf.destroyAtlas();
+		PlayState.instance.remove(PlayState.instance.gf);
+		PlayState.instance.gf.destroy();
+		PlayState.instance.gf = CharacterBuilder.fromName(0, 0, id, flipped);
+		PlayState.instance.gf.flipMode = flipped;
+		var stageData = PlayState.instance.stage.stageData;
+		PlayState.instance.gf.x = PlayState.instance.GF_X + PlayState.instance.gf.positionArray[0];
+		PlayState.instance.gf.y = PlayState.instance.GF_Y + PlayState.instance.gf.positionArray[1];
+		// PlayState.instance.gf.scrollFactor.set(0.95, 0.95);
+		PlayState.instance.add(PlayState.instance.gf);
+		
+		if (PlayState.instance.gf.animOffsets.exists(animationName)) PlayState.instance.gf.playAnim(animationName, true, false, animationFrame);
+		
+		// PlayState.instance.gf.pastCharacter = oldChar;
+		PlayState.instance.setOnScripts('gfName', PlayState.instance.gf.curCharacter);
+		// PlayState.instance.startCharacterScript(PlayState.instance.gf.curCharacter);
 	}
 	
 	public static function setVarInArray(instance:Dynamic, variable:String, value:Dynamic):Any

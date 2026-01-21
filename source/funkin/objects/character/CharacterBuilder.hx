@@ -5,62 +5,29 @@ import haxe.Json;
 import funkin.objects.character.Character.AnimArray;
 
 using StringTools;
+
 typedef CharacterFile =
 {
-	/**
-	 * Array of the actual animation data parsed via json.
-	 */
 	var animations:Array<AnimArray>;
-	
-	/**
-	 * The path to the image of the character.
-	 */
 	var image:String;
-	
-	/**
-	 * The scale of the character
-	 */
 	var scale:Float;
-	
-	/**
-	 * A multiplier of time of how long a character will hold his animations.
-	 */
 	var sing_duration:Float;
-	
-	/**
-	 * The characters health icon name.
-	 */
 	var healthicon:String;
 	
-	/**
-	 * A base offset of the characters position stored as [x,y].
-	 */
 	var position:Array<Float>;
-	
-	/**
-	 * A base offset of the characters camera position stored as [x,y].
-	 */
+	@:optional var player_position:Array<Float>; // New preferred field
+	@:optional var playerposition:Array<Float>; // Legacy fallback
 	var camera_position:Array<Float>;
+	var player_camera_position:Array<Float>;
 	
-	/**
-	 * Whether the character should be flipped.
-	 */
 	var flip_x:Bool;
-	
-	/**
-	 * Whether the character should use antialiasing.
-	 */
 	var no_antialiasing:Bool;
+	var healthbar_colors:Array<Int>;
+	var vocals_file:String;
+	@:optional var is_player_char:Bool; // New preferred field
+	@:optional var isPlayerChar:Bool; // Legacy fallback
 	
-	/**
-	 * The characters health colours. Stored as [r,g,b] to 0-255.
-	 */
-	@:optional var healthbar_colors:Array<Int>;
-	
-	/**
-	 * The characters health colour.
-	 */
-	var healthbar_colour:Int;
+	@:optional var _editor_isPlayer:Null<Bool>;
 }
 
 /**
@@ -103,6 +70,7 @@ class CharacterBuilder
 		
 		return cast Json.parse(FunkinAssets.getContent(charPath));
 	}
+	
 	public static function changeTypeReload(info:Array<Dynamic>, type:String, file:String)
 	{
 		trace('changing type to $type');

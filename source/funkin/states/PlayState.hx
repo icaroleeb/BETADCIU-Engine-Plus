@@ -89,6 +89,7 @@ class PlayState extends MusicBeatState
 	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
 	public var modchartSaves:Map<String, FlxSave> = new Map<String, FlxSave>();
 	public var modchartObjects:Map<String, FlxSprite> = new Map<String, FlxSprite>();
+	public var modchartCharacters:Map<String, Character> = new Map<String, Character>();
 	
 	public var variables:Map<String, Dynamic> = new Map();
 	
@@ -454,25 +455,27 @@ class PlayState extends MusicBeatState
 		
 		girlfriendCameraOffset = stageData.camera_girlfriend ?? [0, 0];
 		
-		if (boyfriendGroup == null) boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
-		else
-		{
-			boyfriendGroup.x = BF_X;
-			boyfriendGroup.y = BF_Y;
-		}
-		if (dadGroup == null) dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-		else
-		{
-			dadGroup.x = DAD_X;
-			dadGroup.y = DAD_Y;
-		}
-		
-		if (gfGroup == null) gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-		else
-		{
-			gfGroup.x = GF_X;
-			gfGroup.y = GF_Y;
-		}
+		/*
+			if (boyfriendGroup == null) boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
+			else
+			{
+				boyfriendGroup.x = BF_X;
+				boyfriendGroup.y = BF_Y;
+			}
+			if (dadGroup == null) dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+			else
+			{
+				dadGroup.x = DAD_X;
+				dadGroup.y = DAD_Y;
+			}
+
+			if (gfGroup == null) gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+			else
+			{
+				gfGroup.x = GF_X;
+				gfGroup.y = GF_Y;
+			}
+		 */
 	}
 	
 	// null checking
@@ -621,12 +624,6 @@ class PlayState extends MusicBeatState
 			stage.add(boyfriendGroup);
 		}
 		
-		if (stage.toAddFront != null)
-		{
-			for (spriteStage in stage.toAddFront)
-				add(spriteStage);
-		}
-		
 		setOnHScripts('camGame', camGame);
 		setOnHScripts('camHUD', camHUD);
 		setOnHScripts('camOther', camOther);
@@ -711,6 +708,12 @@ class PlayState extends MusicBeatState
 		
 		setOnScripts('boyfriend', boyfriend);
 		setOnScripts('boyfriendGroup', boyfriendGroup);
+		
+		if (stage.toAddFront != null)
+		{
+			for (spriteStage in stage.toAddFront)
+				add(spriteStage);
+		}
 		
 		var camPos:FlxPoint = FlxPoint.get(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
 		if (gf != null)
@@ -1023,6 +1026,13 @@ class PlayState extends MusicBeatState
 		return value;
 	}
 	
+	/*
+		public function reloadHealthBarColors()
+		{
+			healthBar.setColors(FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]),
+				FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]));
+		}
+	 */
 	public function addCharacterToList(newCharacter:String, type:Int)
 	{
 		switch (type)
@@ -1063,7 +1073,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 	
-	function startCharacterScript(name:String, char:Character)
+	public function startCharacterScript(name:String, char:Character)
 	{
 		final luaPath = Paths.getPath('characters/$name.lua', TEXT, null, true);
 		final hscriptPath = FunkinIris.getPath('characters/$name');
@@ -1113,14 +1123,32 @@ class PlayState extends MusicBeatState
 	
 	function startCharacterPos(char:Character, ?gfCheck:Bool = false)
 	{
-		if (gfCheck && char.curCharacter.startsWith('gf'))
-		{ // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
-			char.setPosition(GF_X, GF_Y);
-			char.scrollFactor.set(0.95, 0.95);
-			char.danceEveryNumBeats = 2;
+		if (char == gf)
+		{
+			char.setPosition(GF_X + gf.positionArray[0], GF_Y + gf.positionArray[1]);
 		}
-		char.x += char.positionArray[0];
-		char.y += char.positionArray[1];
+		else if (char == dad)
+		{
+			char.setPosition(DAD_X + dad.positionArray[0], DAD_Y + dad.positionArray[1]);
+			
+			if (dad.curCharacter.startsWith('gf'))
+			{
+				dad.setPosition(GF_X + dad.positionArray[0], GF_Y + dad.positionArray[1]);
+				if (gf != null) gf.visible = false;
+			}
+		}
+		else if (char == boyfriend)
+		{
+			char.setPosition(BF_X + boyfriend.playerPositionArray[0], BF_Y + boyfriend.playerPositionArray[1]);
+		}
+		
+		// if(gfCheck && char.curCharacter.startsWith('gf')) { //IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+		// 	char.setPosition(GF_X, GF_Y);
+		// 	char.scrollFactor.set(0.95, 0.95);
+		// 	char.danceEveryNumBeats = 2;
+		// }
+		// char.x += char.positionArray[0];
+		// char.y += char.positionArray[1];
 	}
 	
 	public function startVideo(name:String):Void
@@ -1341,7 +1369,7 @@ class PlayState extends MusicBeatState
 				}
 				
 				startTimer = new FlxTimer().start((Conductor.crotchet / 1000), function(tmr:FlxTimer) {
-					handleBoppers(tmr.loopsLeft);
+					characterBopper(tmr.loopsLeft);
 					
 					var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 					introAssets.set('default', ['ready', 'set', 'go']);
@@ -1412,17 +1440,17 @@ class PlayState extends MusicBeatState
 	
 	public function addBehindGF(obj:FlxObject)
 	{
-		insert(members.indexOf(gfGroup), obj);
+		insert(members.indexOf(gf), obj);
 	}
 	
 	public function addBehindBF(obj:FlxObject)
 	{
-		insert(members.indexOf(boyfriendGroup), obj);
+		insert(members.indexOf(boyfriend), obj);
 	}
 	
 	public function addBehindDad(obj:FlxObject)
 	{
-		insert(members.indexOf(dadGroup), obj);
+		insert(members.indexOf(dad), obj);
 	}
 	
 	inline function disposeNote(note:Note)
@@ -2002,19 +2030,21 @@ class PlayState extends MusicBeatState
 					});
 					
 			case 'Change Character':
-				var charType:Int = 0;
-				switch (event.value1.toLowerCase())
-				{
-					case 'gf' | 'girlfriend' | '1':
-						charType = 2;
-					case 'dad' | 'opponent' | '0':
-						charType = 1;
-					default:
-						charType = Std.parseInt(event.value1);
-						if (Math.isNaN(charType)) charType = 0;
-				}
-				
-				addCharacterToList(event.value2, charType);
+				/*
+					var charType:Int = 0;
+					switch (event.value1.toLowerCase())
+					{
+						case 'gf' | 'girlfriend' | '1':
+							charType = 2;
+						case 'dad' | 'opponent' | '0':
+							charType = 1;
+						default:
+							charType = Std.parseInt(event.value1);
+							if (Math.isNaN(charType)) charType = 0;
+					}
+
+					addCharacterToList(event.value2, charType);
+				 */
 			case 'Change Stage':
 				if (event.value1 != null)
 				{
@@ -2770,94 +2800,95 @@ class PlayState extends MusicBeatState
 		}
 	}
 	
-	function changeCharacter(name:String, charType:Int)
-	{
-		switch (charType)
+	/*
+		function changeCharacter(name:String, charType:Int)
 		{
-			case 0:
-				if (boyfriend.curCharacter != name)
-				{
-					var oldChar = boyfriend;
-					if (!boyfriendMap.exists(name))
+			switch (charType)
+			{
+				case 0:
+					if (boyfriend.curCharacter != name)
 					{
-						addCharacterToList(name, charType);
-					}
-					
-					var lastAlpha:Float = boyfriend.alpha;
-					boyfriend.alpha = 0.00001;
-					boyfriend = boyfriendMap.get(name);
-					boyfriend.alpha = lastAlpha;
-					for (field in playFields.members)
-					{
-						if (field.owner == oldChar) field.owner = boyfriend;
-					}
-				}
-				setOnLuas('boyfriendName', boyfriend.curCharacter);
-				setOnScripts('boyfriend', boyfriend);
-				setOnScripts('boyfriendGroup', boyfriendGroup);
-				
-			case 1:
-				if (dad.curCharacter != name)
-				{
-					var oldChar = dad;
-					if (!dadMap.exists(name))
-					{
-						addCharacterToList(name, charType);
-					}
-					
-					var wasGf:Bool = dad.curCharacter.startsWith('gf');
-					var lastAlpha:Float = dad.alpha;
-					dad.alpha = 0.00001;
-					dad = dadMap.get(name);
-					if (!dad.curCharacter.startsWith('gf'))
-					{
-						if (wasGf && gf != null)
-						{
-							gf.visible = true;
-						}
-					}
-					else if (gf != null)
-					{
-						gf.visible = false;
-					}
-					dad.alpha = lastAlpha;
-					for (field in playFields.members)
-					{
-						if (field.owner == oldChar) field.owner = dad;
-					}
-				}
-				setOnLuas('dadName', dad.curCharacter);
-				setOnScripts('dad', dad);
-				setOnScripts('dadGroup', dadGroup);
-				
-			case 2:
-				if (gf != null)
-				{
-					if (gf.curCharacter != name)
-					{
-						var oldChar = gf;
-						if (!gfMap.exists(name))
+						var oldChar = boyfriend;
+						if (!boyfriendMap.exists(name))
 						{
 							addCharacterToList(name, charType);
 						}
 						
-						var lastAlpha:Float = gf.alpha;
-						gf.alpha = 0.00001;
-						gf = gfMap.get(name);
-						gf.alpha = lastAlpha;
+						var lastAlpha:Float = boyfriend.alpha;
+						boyfriend.alpha = 0.00001;
+						boyfriend = boyfriendMap.get(name);
+						boyfriend.alpha = lastAlpha;
 						for (field in playFields.members)
 						{
-							if (field.owner == oldChar) field.owner = gf;
+							if (field.owner == oldChar) field.owner = boyfriend;
 						}
 					}
-					setOnLuas('gfName', gf.curCharacter);
-					setOnScripts('gf', gf);
-					setOnScripts('gfGroup', gfGroup);
-				}
+					setOnLuas('boyfriendName', boyfriend.curCharacter);
+					setOnScripts('boyfriend', boyfriend);
+					setOnScripts('boyfriendGroup', boyfriendGroup);
+					
+				case 1:
+					if (dad.curCharacter != name)
+					{
+						var oldChar = dad;
+						if (!dadMap.exists(name))
+						{
+							addCharacterToList(name, charType);
+						}
+						
+						var wasGf:Bool = dad.curCharacter.startsWith('gf');
+						var lastAlpha:Float = dad.alpha;
+						dad.alpha = 0.00001;
+						dad = dadMap.get(name);
+						if (!dad.curCharacter.startsWith('gf'))
+						{
+							if (wasGf && gf != null)
+							{
+								gf.visible = true;
+							}
+						}
+						else if (gf != null)
+						{
+							gf.visible = false;
+						}
+						dad.alpha = lastAlpha;
+						for (field in playFields.members)
+						{
+							if (field.owner == oldChar) field.owner = dad;
+						}
+					}
+					setOnLuas('dadName', dad.curCharacter);
+					setOnScripts('dad', dad);
+					setOnScripts('dadGroup', dadGroup);
+					
+				case 2:
+					if (gf != null)
+					{
+						if (gf.curCharacter != name)
+						{
+							var oldChar = gf;
+							if (!gfMap.exists(name))
+							{
+								addCharacterToList(name, charType);
+							}
+							
+							var lastAlpha:Float = gf.alpha;
+							gf.alpha = 0.00001;
+							gf = gfMap.get(name);
+							gf.alpha = lastAlpha;
+							for (field in playFields.members)
+							{
+								if (field.owner == oldChar) field.owner = gf;
+							}
+						}
+						setOnLuas('gfName', gf.curCharacter);
+						setOnScripts('gf', gf);
+						setOnScripts('gfGroup', gfGroup);
+					}
+			}
+			callHUDFunc(hud -> hud.onCharacterChange());
 		}
-		callHUDFunc(hud -> hud.onCharacterChange());
-	}
-	
+	 */
 	public function triggerEventNote(eventName:String, value1:String, value2:String)
 	{
 		switch (eventName)
@@ -3045,60 +3076,24 @@ class PlayState extends MusicBeatState
 				changeStage(value1);
 			case 'Change Character':
 				var charType:Int = 0;
-				switch (value1)
+				switch (value1.toLowerCase().trim())
 				{
-					case 'gf' | 'girlfriend':
-						charType = 2;
-					case 'dad' | 'opponent':
-						charType = 1;
-					default:
-						charType = Std.parseInt(value1);
-						if (Math.isNaN(charType)) charType = 0;
+					case 'gf' | 'girlfriend' | "2":
+						FunkinLua.changeGFAuto(value2);
+					case 'dad' | "opponent" | "1":
+						FunkinLua.changeDadAuto(value2);
+					case 'boyfriend' | 'bf' | "0":
+						FunkinLua.changeBFAuto(value2);
+					default: // lua chars
+						{
+							var char = modchartCharacters.get(value1);
+							if (char != null)
+							{
+								FunkinLua.makeLuaCharacter(value1, value2, char.isPlayer, false);
+							}
+						}
 				}
-				
-				var curChar:Character = boyfriend;
-				switch (charType)
-				{
-					case 2:
-						curChar = gf;
-					case 1:
-						curChar = dad;
-					case 0:
-						curChar = boyfriend;
-				}
-				
-				var newCharacter:String = value2;
-				var anim:String = '';
-				var frame:Int = 0;
-				if (newCharacter.startsWith(curChar.curCharacter) || curChar.curCharacter.startsWith(newCharacter))
-				{
-					if (!curChar.isAnimNull())
-					{
-						anim = curChar.getAnimName();
-						frame = curChar.animCurFrame;
-					}
-				}
-				
-				changeCharacter(value2, charType);
-				if (anim != '')
-				{
-					var char:Character = boyfriend;
-					switch (charType)
-					{
-						case 2:
-							char = gf;
-						case 1:
-							char = dad;
-						case 0:
-							char = boyfriend;
-					}
-					
-					if (!char.isAnimNull())
-					{
-						char.playAnim(anim, true);
-						char.animCurFrame = frame;
-					}
-				}
+			// reloadHealthBarColors();
 			case 'Change Scroll Speed':
 				if (songSpeedType == "constant") return;
 				var val1:Float = Std.parseFloat(value1);
@@ -4479,7 +4474,7 @@ class PlayState extends MusicBeatState
 			notes.sort(FlxSort.byY, ClientPrefs.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 		}
 		
-		handleBoppers(curBeat);
+		characterBopper(curBeat);
 		
 		if (beatsPerZoom == 0) beatsPerZoom = 4;
 		
@@ -4514,28 +4509,43 @@ class PlayState extends MusicBeatState
 		callHUDFunc(hud -> hud.beatHit());
 	}
 	
-	// rework this
-	public function handleBoppers(beat:Int)
+	public function characterBopper(beat:Int):Void
 	{
+		if (gfSpeed == 0) gfSpeed = 1; // sigh...
 		if (gf != null
 			&& beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-			&& !gf.isAnimNull()
-			&& !gf.getAnimName().startsWith("sing")
-			&& !gf.stunned)
-		{
-			gf.dance();
-		}
-		if (beat % boyfriend.danceEveryNumBeats == 0
-			&& !boyfriend.isAnimNull()
+			&& !gf.getAnimName().startsWith('sing')
+			&& !gf.stunned) gf.dance();
+			
+		if (boyfriend != null
+			&& beat % boyfriend.danceEveryNumBeats == 0
 			&& !boyfriend.getAnimName().startsWith('sing')
-			&& !boyfriend.stunned)
+			&& !boyfriend.stunned) boyfriend.dance();
+			
+		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimName().startsWith('sing') && !dad.stunned) dad.dance();
+		
+		for (value in modchartCharacters.keys())
 		{
-			boyfriend.dance();
+			var char:Character = modchartCharacters.get(value);
+			if (char != null
+				&& beat % char.danceEveryNumBeats == 0
+				&& !char.getAnimName().startsWith('sing')
+				&& !char.stunned) char.dance();
 		}
-		if (beat % dad.danceEveryNumBeats == 0 && !dad.isAnimNull() && !dad.getAnimName().startsWith('sing') && !dad.stunned)
-		{
-			dad.dance();
-		}
+		
+		// var modchartCharacters:Map<String, Character> = new Map<String, Character>();
+		
+		// for (key => char in variables) {
+		// 	if (char is Character) {
+		// 		modchartCharacters.set(key, cast(char, Character));
+		// 	}
+		// }
+		
+		// for (value in modchartCharacters.keys()) {
+		// 	var char = modchartCharacters.get(value);
+		// 	if (char != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned)
+		// 		char.dance();
+		// }
 	}
 	
 	override function sectionHit()
@@ -4751,10 +4761,10 @@ class PlayState extends MusicBeatState
 	{
 		// remove current stage
 		
-		for (chars in [dadGroup, boyfriendGroup])
+		for (chars in [dad, boyfriend])
 		{
-			if (gf != null) stage.remove(gfGroup);
-			stage.remove(chars);
+			if (!stageData.hide_girlfriend && gf != null) remove(gf);
+			remove(chars);
 		}
 		
 		if (stage.curStageScript != null)
@@ -4824,10 +4834,10 @@ class PlayState extends MusicBeatState
 		
 		add(stage);
 		
-		for (chars in [dadGroup, boyfriendGroup])
+		for (chars in [dad, boyfriend])
 		{
-			if (!stageData.hide_girlfriend && gf != null) stage.add(gfGroup);
-			stage.add(chars);
+			if (!stageData.hide_girlfriend && gf != null) add(gf);
+			add(chars);
 		}
 		
 		if (stage.toAddFront != null)

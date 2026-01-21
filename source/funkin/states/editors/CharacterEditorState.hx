@@ -43,7 +43,7 @@ class CharacterEditorState extends MusicBeatState
 	var ghostCharAtlas:Character;
 	var curChar:Character;
 	var curGhost:Character;
-
+	
 	var textAnim:FlxText;
 	var bgLayer:FlxTypedGroup<FlxSprite>;
 	var charLayer:FlxTypedGroup<Character>;
@@ -574,6 +574,7 @@ class CharacterEditorState extends MusicBeatState
 					loop: animationLoopCheckBox.checked,
 					indices: indices,
 					offsets: lastOffsets,
+					playerOffsets: lastOffsets,
 				};
 				
 			if (indices != null && indices.length > 0)
@@ -953,7 +954,6 @@ class CharacterEditorState extends MusicBeatState
 			curChar = char;
 		}
 		
-		
 		curChar.setPosition(curChar.positionArray[0] + OFFSET_X + 100, curChar.positionArray[1]);
 		
 		if (blahBlahBlah)
@@ -964,7 +964,6 @@ class CharacterEditorState extends MusicBeatState
 		reloadBGs();
 		updatePointerPos();
 	}
-
 	
 	function updatePointerPos()
 	{
@@ -996,6 +995,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 		return null;
 	}
+	
 	function changeType(type:String, file:String)
 	{
 		for (i in [char /*, ghostChar*/])

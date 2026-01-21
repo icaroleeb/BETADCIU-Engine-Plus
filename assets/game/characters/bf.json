@@ -172,6 +172,10 @@
 		0,
 		350
 	],
+	"playerPositionArray": [
+		0,
+		350
+	],
 	"healthicon": "bf",
 	"flip_x": true,
 	"healthbar_colors": [
