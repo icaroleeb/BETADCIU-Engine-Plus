@@ -2533,31 +2533,33 @@ class FunkinLua extends FunkinScript
 		var animationFrame:Int = 0;
 		// var oldChar:String = PlayState.instance.boyfriend.curCharacter;
 		
-		try
-		{
-			if (PlayState.instance.boyfriend.isAnimateAtlas)
+		/*
+			try
 			{
-				/*
+				if (PlayState.instance.boyfriend.isAnimateAtlas)
+				{	
 					if (PlayState.instance.boyfriend.getAnimName().startsWith('sing'))
 					{
 						animationName = Std.string(PlayState.instance.boyfriend.atlas.anim.curInstance);
 						animationFrame = Std.int(PlayState.instance.boyfriend.atlas.anim.curFrame);
 					}
-				 */
-			}
-			else
-			{
-				if (PlayState.instance.boyfriend.animation.curAnim.name.startsWith('sing'))
+					 
+				}
+				else
 				{
-					animationName = PlayState.instance.boyfriend.animation.curAnim.name;
-					animationFrame = PlayState.instance.boyfriend.animation.curAnim.curFrame;
+					/*
+					if (PlayState.instance.boyfriend.animation.curAnim.name.startsWith('sing'))
+					{
+						animationName = PlayState.instance.boyfriend.animation.curAnim.name;
+						animationFrame = PlayState.instance.boyfriend.animation.curAnim.curFrame;
+					}
 				}
 			}
-		}
-		catch (e:Dynamic)
-		{
-			// do absolutely nothing
-		}
+			catch (e:Dynamic)
+			{
+				// do absolutely nothing
+			}
+		 */
 		
 		// PlayState.instance.stopCharacterScripts(PlayState.instance.boyfriend.curCharacter);
 		// PlayState.instance.boyfriend.destroyAtlas();
@@ -2585,7 +2587,7 @@ class FunkinLua extends FunkinScript
 		
 		if (PsychHUD.instance.defaultBar) PsychHUD.instance.reloadHealthBarColors();
 		
-		if (PlayState.instance.boyfriend.animOffsets.exists(animationName)) PlayState.instance.boyfriend.playAnim(animationName, true, false, animationFrame);
+		// if (PlayState.instance.boyfriend.animOffsets.exists(animationName)) PlayState.instance.boyfriend.playAnim(animationName, true, false, animationFrame);
 		
 		// PlayState.instance.boyfriend.pastCharacter = oldChar;
 		PlayState.instance.setOnScripts('boyfriendName', PlayState.instance.boyfriend.curCharacter);
@@ -2598,31 +2600,31 @@ class FunkinLua extends FunkinScript
 		var animationFrame:Int = 0;
 		// var oldChar:String = PlayState.instance.dad.curCharacter;
 		
-		try
-		{
-			if (PlayState.instance.dad.isAnimateAtlas)
+		/*
+			try
 			{
-				/*
+				if (PlayState.instance.dad.isAnimateAtlas)
+				{
 					if (PlayState.instance.dad.getAnimationName().startsWith('sing'))
 					{
 						animationName = Std.string(PlayState.instance.dad.atlas.anim.curInstance);
 						animationFrame = Std.int(PlayState.instance.dad.atlas.anim.curFrame);
 					}
-				 */
-			}
-			else
-			{
-				if (PlayState.instance.dad.animation.curAnim.name.startsWith('sing'))
+				}
+				else
 				{
-					animationName = PlayState.instance.dad.animation.curAnim.name;
-					animationFrame = PlayState.instance.dad.animation.curAnim.curFrame;
+					if (PlayState.instance.dad.animation.curAnim.name.startsWith('sing'))
+					{
+						animationName = PlayState.instance.dad.animation.curAnim.name;
+						animationFrame = PlayState.instance.dad.animation.curAnim.curFrame;
+					}
 				}
 			}
-		}
-		catch (e:Dynamic)
-		{
-			// do absolutely nothing
-		}
+			catch (e:Dynamic)
+			{
+				// do absolutely nothing
+			}
+		 */
 		
 		// PlayState.instance.stopCharacterScripts(PlayState.instance.dad.curCharacter);
 		// PlayState.instance.dad.destroyAtlas();
@@ -2652,7 +2654,7 @@ class FunkinLua extends FunkinScript
 		
 		if (PsychHUD.instance.defaultBar) PsychHUD.instance.reloadHealthBarColors();
 		
-		if (PlayState.instance.dad.animOffsets.exists(animationName)) PlayState.instance.dad.playAnim(animationName, true, false, animationFrame);
+		// if (PlayState.instance.dad.animOffsets.exists(animationName)) PlayState.instance.dad.playAnim(animationName, true, false, animationFrame);
 		
 		// PlayState.instance.dad.pastCharacter = oldChar;
 		PlayState.instance.setOnScripts('dadName', PlayState.instance.dad.curCharacter);
@@ -2664,31 +2666,31 @@ class FunkinLua extends FunkinScript
 		var animationName:String = "no way anyone have an anim name this big";
 		var animationFrame:Int = 0;
 		
-		try
-		{
-			if (PlayState.instance.gf.isAnimateAtlas)
+		/*
+			try
 			{
-				/*
+				if (PlayState.instance.gf.isAnimateAtlas)
+				{
 					if (PlayState.instance.gf.getAnimationName().startsWith('sing'))
 					{
 						animationName = Std.string(PlayState.instance.gf.atlas.anim.curInstance);
 						animationFrame = Std.int(PlayState.instance.gf.atlas.anim.curFrame);
 					}
-				 */
-			}
-			else
-			{
-				if (PlayState.instance.gf.animation.curAnim.name.startsWith('sing'))
+				}
+				else
 				{
-					animationName = PlayState.instance.gf.animation.curAnim.name;
-					animationFrame = PlayState.instance.gf.animation.curAnim.curFrame;
+					if (PlayState.instance.gf.animation.curAnim.name.startsWith('sing'))
+					{
+						animationName = PlayState.instance.gf.animation.curAnim.name;
+						animationFrame = PlayState.instance.gf.animation.curAnim.curFrame;
+					}
 				}
 			}
-		}
-		catch (e:Dynamic)
-		{
-			// do absolutely nothing
-		}
+			catch (e:Dynamic)
+			{
+				// do absolutely nothing
+			}
+		 */
 		
 		// PlayState.instance.stopCharacterScripts(PlayState.instance.gf.curCharacter);
 		// PlayState.instance.gf.destroyAtlas();
@@ -2702,7 +2704,7 @@ class FunkinLua extends FunkinScript
 		// PlayState.instance.gf.scrollFactor.set(0.95, 0.95);
 		PlayState.instance.add(PlayState.instance.gf);
 		
-		if (PlayState.instance.gf.animOffsets.exists(animationName)) PlayState.instance.gf.playAnim(animationName, true, false, animationFrame);
+		// if (PlayState.instance.gf.animOffsets.exists(animationName)) PlayState.instance.gf.playAnim(animationName, true, false, animationFrame);
 		
 		// PlayState.instance.gf.pastCharacter = oldChar;
 		PlayState.instance.setOnScripts('gfName', PlayState.instance.gf.curCharacter);
