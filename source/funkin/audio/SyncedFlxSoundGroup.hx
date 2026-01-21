@@ -4,6 +4,8 @@ import flixel.util.FlxSignal;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.sound.FlxSound;
 
+import funkin.data.Song.SwagSong;
+
 /**
  * Container of FlxSounds with some functions to make multiple tracks act as one
  */
@@ -209,5 +211,72 @@ class VocalGroup extends SyncedFlxSoundGroup
 		playerVocals = FlxDestroyUtil.destroy(playerVocals);
 		
 		super.destroy();
+	}
+}
+
+// @:forward
+// abstract PlayableSong(VocalGroup) to VocalGroup from VocalGroup
+class PlayableSong extends VocalGroup
+{
+	public var inst:FlxSound;
+	public var trackSwap:Bool;
+	public var needsVoices:Bool;
+	
+	public function populate(data:SwagSong)
+	{
+		if (data != null)
+		{
+			needsVoices = false;
+			trackSwap = data.trackSwap;
+			
+			if (trackSwap)
+			{
+				inst = new FlxSound().loadEmbedded(Paths.trackswap(data.song, 'main'));
+				add(inst);
+				
+				final track2 = new FlxSound().loadEmbedded(Paths.trackswap(data.song, 'miss'));
+				if (track2 != null) addOpponentVocals(track2);
+				
+				opponentVolume = 0;
+			}
+			else
+			{
+				needsVoices = data.needsVoices;
+				if (needsVoices)
+				{
+					final playerSound = Paths.voices(data.song, 'player') ?? Paths.voices(data.song, null);
+					if (playerSound != null) addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
+					
+					final opponentSound = Paths.voices(data.song, 'opp');
+					if (opponentSound != null) addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
+				}
+				
+				inst = new FlxSound().loadEmbedded(Paths.inst(data.song));
+				add(inst);
+			}
+		}
+	}
+	
+	public function miss()
+	{
+		if (trackSwap)
+		{
+			inst.volume = 0;
+			opponentVolume = 1;
+		}
+		else playerVolume = 0;
+	}
+	
+	public function hit(intendedVocals:SyncedFlxSoundGroup, vol:Float)
+	{
+		if (trackSwap)
+		{
+			inst.volume = 1;
+			opponentVolume = 0;
+		}
+		else
+		{
+			if (needsVoices) intendedVocals.volume = vol;
+		}
 	}
 }

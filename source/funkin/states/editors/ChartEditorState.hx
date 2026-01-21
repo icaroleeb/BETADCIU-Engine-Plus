@@ -338,6 +338,7 @@ class ChartEditorState extends MusicBeatState
 			_song =
 				{
 					song: 'test',
+					trackSwap: false,
 					notes: [],
 					events: [],
 					bpm: 100.0,

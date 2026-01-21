@@ -140,8 +140,7 @@ class PlayState extends MusicBeatState
 		#if FLX_PITCH
 		if (generatedMusic)
 		{
-			vocals.pitch = value;
-			FlxG.sound.music.pitch = value;
+			audio.pitch = playbackRate;
 			
 			var ratio:Float = playbackRate / value;
 			if (ratio != 1)
@@ -168,8 +167,7 @@ class PlayState extends MusicBeatState
 	{
 		volumeMult = value;
 		
-		vocals.volume *= volumeMult;
-		FlxG.sound.music.volume *= volumeMult;
+		audio.volume *= volumeMult;
 		
 		return volumeMult;
 	}
@@ -184,10 +182,6 @@ class PlayState extends MusicBeatState
 	public var currentSV:SpeedEvent = {};
 	
 	var noteRows:Array<Array<Array<Note>>> = [[], []];
-	
-	public var modchartObjects:Map<String, FlxSprite> = new Map<String, FlxSprite>();
-	
-	public var variables:Map<String, Dynamic> = new Map();
 	
 	/**
 	 * Disables automatic camera movements if enabled.
@@ -290,9 +284,9 @@ class PlayState extends MusicBeatState
 	public var spawnTime:Float = 3000;
 	
 	/**
-	 * Specialized container for character vocals
+	 * Specialized container for song audio
 	 */
-	public var vocals:VocalGroup;
+	public var audio:PlayableSong;
 	
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -655,17 +649,6 @@ class PlayState extends MusicBeatState
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; // Reset to default
 		
-		#if FLX_DEBUG
-		FlxG.watch.addFunction('Conductor: ', () -> Conductor.songPosition);
-		FlxG.watch.addFunction('SongTime: ', () -> FlxStringUtil.formatTime(Conductor.songPosition / 1000)
-			+ ' / '
-			+ FlxStringUtil.formatTime(FlxG.sound.music.length / 1000));
-			
-		FlxG.watch.addFunction('curSec: ', () -> curSection);
-		FlxG.watch.addFunction('curBeat: ', () -> curBeat);
-		FlxG.watch.addFunction('curStep: ', () -> curStep);
-		#end
-		
 		keysArray = [
 			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_left')),
 			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_down')),
@@ -678,8 +661,6 @@ class PlayState extends MusicBeatState
 		
 		// If u have kutty enabled
 		if (ClientPrefs.useEpicRankings) ratingsData.unshift(new Rating('epic'));
-		
-		FlxG.sound.music?.stop();
 		
 		// Gameplay settings
 		healthGain = ClientPrefs.getGameplaySetting('healthgain', 1);
@@ -826,6 +807,19 @@ class PlayState extends MusicBeatState
 		meta = Metadata.getSong();
 		
 		generateSong(SONG.song);
+		#if FLX_DEBUG
+		FlxG.watch.addFunction('Conductor: ', () -> Conductor.songPosition);
+		FlxG.watch.addFunction('SongTime: ', () -> FlxStringUtil.formatTime(Conductor.songPosition / 1000)
+			+ ' / '
+			+ FlxStringUtil.formatTime(audio.inst.length / 1000));
+			
+		FlxG.watch.addFunction('curSec: ', () -> curSection);
+		FlxG.watch.addFunction('curBeat: ', () -> curBeat);
+		FlxG.watch.addFunction('curStep: ', () -> curStep);
+		#end
+		
+		audio.inst?.stop();
+		
 		modManager = new ModManager(this);
 		scripts.set("modManager", modManager);
 		
@@ -1058,13 +1052,6 @@ class PlayState extends MusicBeatState
 		if (script.exists('onLoad')) script.call('onLoad');
 		scripts.addScript(script);
 		return script;
-	}
-	
-	public function getModchartObject(tag:String):Dynamic
-	{
-		if (variables.exists(tag)) return variables.get(tag);
-		if (modchartObjects.exists(tag)) return modchartObjects.get(tag);
-		return null;
 	}
 	
 	function startCharacterPos(?char:Character, gfCheck:Bool = false):Void
@@ -1327,24 +1314,8 @@ class PlayState extends MusicBeatState
 		return spr;
 	}
 	
-	public function addBehindGF(obj:FlxObject):Void
-	{
-		insert(members.indexOf(gfGroup), obj);
-	}
-	
-	public function addBehindBF(obj:FlxObject):Void
-	{
-		insert(members.indexOf(boyfriendGroup), obj);
-	}
-	
-	public function addBehindDad(obj:FlxObject):Void
-	{
-		insert(members.indexOf(dadGroup), obj);
-	}
-	
 	inline function disposeNote(note:Note):Void
 	{
-		if (modchartObjects.exists('note${note.ID}')) modchartObjects.remove('note${note.ID}');
 		note.kill();
 		notes.remove(note, true);
 		note.destroy();
@@ -1362,7 +1333,6 @@ class PlayState extends MusicBeatState
 				daNote.visible = false;
 				daNote.ignoreNote = true;
 				
-				if (modchartObjects.exists('note${daNote.ID}')) modchartObjects.remove('note${daNote.ID}');
 				daNote.kill();
 				unspawnNotes.remove(daNote);
 				daNote.destroy();
@@ -1390,16 +1360,11 @@ class PlayState extends MusicBeatState
 	{
 		if (time < 0) time = 0;
 		
-		FlxG.sound.music.pause();
-		vocals.pause();
+		audio.pause();
+		audio.time = time;
+		#if FLX_PITCH audio.pitch = playbackRate; #end
+		audio.play();
 		
-		FlxG.sound.music.time = time;
-		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-		FlxG.sound.music.play();
-		
-		vocals.time = time;
-		#if FLX_PITCH vocals.pitch = playbackRate; #end
-		vocals.play();
 		Conductor.songPosition = time;
 		songTime = time;
 	}
@@ -1413,29 +1378,22 @@ class PlayState extends MusicBeatState
 		
 		previousFrameTime = FlxG.game.ticks;
 		
-		FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+		// FunkinSound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
 		
-		FlxG.sound.music.onComplete = finishSong.bind(false);
-		vocals.play();
-		vocals.volume = 1 * volumeMult;
+		audio.inst.onComplete = finishSong.bind(false);
+		audio.inst.play();
+		audio.inst.volume = 1 * volumeMult;
 		
 		#if FLX_PITCH
-		FlxG.sound.music.pitch = playbackRate;
-		vocals.pitch = playbackRate;
+		audio.inst.pitch = playbackRate;
 		#end
-		
-		FlxG.sound.music.volume = 1 * volumeMult;
 		
 		if (startOnTime > 0) setSongTime(startOnTime - 500);
 		startOnTime = 0;
 		
-		if (paused)
-		{
-			FlxG.sound.music.pause();
-			vocals.pause();
-		}
+		if (paused) audio.pause();
 		
-		songLength = FlxG.sound.music.length;
+		songLength = audio.inst.length;
 		
 		// Updating Discord Rich Presence (with Time Left)
 		if (automatedDiscord) DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
@@ -1519,29 +1477,19 @@ class PlayState extends MusicBeatState
 		
 		curSong = songData.song;
 		
-		if (!ClientPrefs.streamedMusic) Paths.inst(PlayState.SONG.song);
+		// if (!ClientPrefs.streamedMusic) Paths.inst(PlayState.SONG.song);
 		
-		vocals = new VocalGroup();
-		add(vocals);
+		audio = new PlayableSong();
+		audio.populate(SONG);
 		
-		if (SONG.needsVoices)
-		{
-			final playerSound = Paths.voices(PlayState.SONG.song, 'player') ?? Paths.voices(PlayState.SONG.song, null);
-			if (playerSound != null) vocals.addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
-			
-			final opponentSound = Paths.voices(PlayState.SONG.song, 'opp');
-			if (opponentSound != null) vocals.addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
-		}
 		#if FLX_PITCH
-		FlxG.sound.music.pitch = playbackRate;
-		vocals.pitch = playbackRate;
+		audio.pitch = playbackRate;
 		#end
 		
-		vocals.volume = 0;
-		FlxG.sound.music.volume = 0;
+		audio.volume = 0;
 		
-		scripts.set('vocals', vocals);
-		scripts.set('inst', FlxG.sound.music);
+		scripts.set('vocals', audio);
+		scripts.set('inst', audio.inst);
 		
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
@@ -1675,7 +1623,6 @@ class PlayState extends MusicBeatState
 				
 				susLength = susLength / Conductor.stepCrotchet;
 				swagNote.ID = unspawnNotes.length;
-				modchartObjects.set('note${swagNote.ID}', swagNote);
 				unspawnNotes.push(swagNote);
 				
 				callNoteTypeScript(swagNote.noteType, 'setupNote', [swagNote]);
@@ -1701,7 +1648,6 @@ class PlayState extends MusicBeatState
 					if (!sustainNote.alive) break;
 					
 					sustainNote.ID = unspawnNotes.length;
-					modchartObjects.set('note${sustainNote.ID}', sustainNote);
 					sustainNote.scrollFactor.set();
 					sustainNote.lane = swagNote.lane;
 					swagNote.tail.push(sustainNote);
@@ -1873,11 +1819,7 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			if (FlxG.sound.music != null)
-			{
-				FlxG.sound.music.pause();
-				vocals.pause();
-			}
+			if (audio != null) audio.pause();
 			
 			FlxTimer.globalManager.forEach((i:FlxTimer) -> if (!i.finished) i.active = false);
 			FlxTween.globalManager.forEach((i:FlxTween) -> if (!i.finished) i.active = false);
@@ -1909,7 +1851,7 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			if (FlxG.sound.music != null && !startingSong) resyncVocals();
+			if (audio.inst != null && !startingSong) resyncVocals();
 			
 			FlxTimer.globalManager.forEach((i:FlxTimer) -> if (!i.finished) i.active = true);
 			FlxTween.globalManager.forEach((i:FlxTween) -> if (!i.finished) i.active = true);
@@ -1959,15 +1901,14 @@ class PlayState extends MusicBeatState
 	function resyncVocals():Void
 	{
 		if (finishTimer != null) return;
-		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-		vocals.pause();
 		
-		FlxG.sound.music.play();
-		Conductor.songPosition = FlxG.sound.music.time;
-		
-		vocals.time = Conductor.songPosition;
-		#if FLX_PITCH vocals.pitch = playbackRate; #end
-		vocals.play(false, Conductor.songPosition);
+		audio.pitch = playbackRate;
+		audio.pause();
+		audio.play();
+		audio.time = audio.inst.time;
+		Conductor.songPosition = audio.inst.time;
+		#if FLX_PITCH audio.pitch = playbackRate; #end
+		audio.play();
 	}
 	
 	public var canAccessEditors:Bool = true;
@@ -2095,7 +2036,6 @@ class PlayState extends MusicBeatState
 							note.visible = false;
 							note.ignoreNote = true;
 							
-							if (modchartObjects.exists('note${note.ID}')) modchartObjects.remove('note${note.ID}');
 							note.kill();
 							unspawnNotes.remove(note);
 							note.destroy();
@@ -2122,7 +2062,6 @@ class PlayState extends MusicBeatState
 						note.visible = false;
 						note.ignoreNote = true;
 						
-						if (modchartObjects.exists('note${note.ID}')) modchartObjects.remove('note${note.ID}');
 						note.kill();
 						unspawnNotes.remove(note);
 						note.destroy();
@@ -2241,7 +2180,7 @@ class PlayState extends MusicBeatState
 				if (FlxG.keys.justPressed.ONE)
 				{
 					KillNotes();
-					FlxG.sound.music.onComplete();
+					audio.inst.onComplete();
 				}
 				if (FlxG.keys.justPressed.TWO)
 				{
@@ -2266,11 +2205,7 @@ class PlayState extends MusicBeatState
 		persistentDraw = true;
 		paused = true;
 		
-		if (FlxG.sound.music != null)
-		{
-			FlxG.sound.music.pause();
-			vocals.pause();
-		}
+		if (audio.inst != null) audio.pause();
 		openSubState(new PauseSubState());
 		
 		if (automatedDiscord) DiscordClient.changePresence(rpcPausedDescription, 'Paused');
@@ -2340,8 +2275,7 @@ class PlayState extends MusicBeatState
 				
 				paused = true;
 				
-				vocals.stop();
-				FlxG.sound.music.stop();
+				audio.stop();
 				
 				persistentUpdate = false;
 				persistentDraw = false;
@@ -2862,9 +2796,8 @@ class PlayState extends MusicBeatState
 	public function finishSong(?ignoreNoteOffset:Bool = false):Void
 	{
 		updateTime = false;
-		FlxG.sound.music.volume = 0;
-		vocals.volume = 0;
-		vocals.pause();
+		audio.volume = 0;
+		audio.stop();
 		
 		if (songEndCallback == null)
 		{
@@ -3016,7 +2949,7 @@ class PlayState extends MusicBeatState
 		
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.ratingOffset);
 		
-		vocals.playerVolume = 1 * volumeMult;
+		audio.playerVolume = 1 * volumeMult;
 		
 		// tryna do MS based judgment due to popular demand
 		var daRating:Rating = Rating.judgeNote(note, noteDiff / playbackRate);
@@ -3061,7 +2994,7 @@ class PlayState extends MusicBeatState
 			{
 				// more accurate hit time for the ratings?
 				var lastTime:Float = Conductor.songPosition;
-				Conductor.songPosition = FlxG.sound.music.time;
+				Conductor.songPosition = audio.time;
 				
 				var canMiss:Bool = !ClientPrefs.ghostTapping;
 				
@@ -3244,14 +3177,11 @@ class PlayState extends MusicBeatState
 		combo = 0;
 		health -= daNote.missHealth * healthLoss;
 		
-		if (instakillOnMiss)
-		{
-			vocals.playerVolume = 0;
-			doDeathCheck(true);
-		}
+		audio.miss();
+		
+		if (instakillOnMiss) doDeathCheck(true);
 		
 		songMisses++;
-		vocals.playerVolume = 0;
 		if (!practiceMode) songScore -= 10;
 		
 		totalPlayed++;
@@ -3313,11 +3243,10 @@ class PlayState extends MusicBeatState
 		if (!boyfriend.stunned)
 		{
 			health -= 0.05 * healthLoss;
-			if (instakillOnMiss)
-			{
-				vocals.playerVolume = 0;
-				doDeathCheck(true);
-			}
+			
+			audio.miss();
+			
+			if (instakillOnMiss) doDeathCheck(true);
 			
 			if (combo > 5 && gf != null && gf.animOffsets.exists('sad')) gf.playAnim('sad');
 			combo = 0;
@@ -3330,14 +3259,13 @@ class PlayState extends MusicBeatState
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 			
 			if (anim) if (boyfriend.animTimer <= 0) boyfriend.playAnim(noteSkin.data.singAnimations[Std.int(Math.abs(direction))] + 'miss', true);
-			vocals.playerVolume = 0;
 		}
 		scripts.call('noteMissPress', [direction]);
 	}
 	
 	function noteHit(note:Note, field:PlayField):Void
 	{
-		var intendedVocals = vocals.playerVocals;
+		var intendedVocals = audio.playerVocals;
 		
 		switch (field.ID)
 		{
@@ -3366,11 +3294,11 @@ class PlayState extends MusicBeatState
 				health += note.hitHealth * healthGain;
 			case 1:
 				camZooming = true;
-				intendedVocals = vocals.opponentVocals.length == 0 ? vocals : vocals.opponentVocals;
+				intendedVocals = audio.opponentVocals.length == 0 ? audio : audio.opponentVocals;
 				scripts.call('opponentNoteHitPre', [note]);
 			default:
 				// change the vocals in the script if u want to add extra vocal tracks
-				intendedVocals = vocals.opponentVocals.length == 0 ? vocals : vocals.opponentVocals;
+				intendedVocals = audio.opponentVocals.length == 0 ? audio : audio.opponentVocals;
 				scripts.call('extraNoteHitPre', [note, field.ID]);
 		}
 		
@@ -3454,7 +3382,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 		
-		if (SONG.needsVoices) intendedVocals.volume = 1 * volumeMult;
+		audio.hit(intendedVocals, 1 * volumeMult);
 		
 		if (field.autoPlayed)
 		{
@@ -3555,8 +3483,8 @@ class PlayState extends MusicBeatState
 		
 		final maxToleratedOffset:Float = 20 * playbackRate;
 		
-		if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > maxToleratedOffset
-			|| (SONG.needsVoices && vocals.getDesyncDifference(Math.abs(Conductor.songPosition - Conductor.offset)) > maxToleratedOffset)) resyncVocals();
+		if (Math.abs(audio.inst.time - (Conductor.songPosition - Conductor.offset)) > maxToleratedOffset
+			|| (SONG.needsVoices && audio.getDesyncDifference(Math.abs(Conductor.songPosition - Conductor.offset)) > maxToleratedOffset)) resyncVocals();
 			
 		if (curStep == lastStepHit) return;
 		

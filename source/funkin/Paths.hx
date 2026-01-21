@@ -170,6 +170,22 @@ class Paths
 		return FunkinAssets.getSound(key);
 	}
 	
+	public static inline function trackswap(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
+	{
+		var name = sanitize(song);
+		
+		var songKey:String = '$name/Track';
+		if (FunkinAssets.isDirectory(getPath('songs/$name/audio', null, checkMods))) songKey = '$name/audio/Voices';
+		
+		if (postFix != null) songKey += '-$postFix';
+		
+		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
+		
+		if (ClientPrefs.streamedMusic) return FunkinAssets.getVorbisSound(songKey);
+		
+		return FunkinAssets.getSoundUnsafe(songKey);
+	}
+	
 	public static inline function voices(song:String, ?postFix:String, checkMods:Bool = true):Null<Sound>
 	{
 		var name = sanitize(song);
