@@ -183,6 +183,8 @@ class PlayState extends MusicBeatState
 	
 	var noteRows:Array<Array<Array<Note>>> = [[], []];
 	
+	public var variables:Map<String, Dynamic> = new Map();
+	
 	/**
 	 * Disables automatic camera movements if enabled.
 	 */
