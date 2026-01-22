@@ -223,22 +223,25 @@ class ModManager
 	
 	public function updateObject(beat:Float, obj:FlxSprite, pos:Vector3, player:Int)
 	{
-		for (name in activeMods[player])
-		{
-			var mod:Modifier = notemodRegister.get(name);
-			if (mod == null || !obj.active) continue;
-			if ((obj is Note))
+		if(activeMods[player] != null){
+			for (name in activeMods[player])
 			{
-				var o:Note = cast obj;
-				mod.updateNote(beat, o, pos, player);
+				var mod:Modifier = notemodRegister.get(name);
+				if (mod == null || !obj.active) continue;
+				if ((obj is Note))
+				{
+					var o:Note = cast obj;
+					mod.updateNote(beat, o, pos, player);
+				}
+				else if ((obj is StrumNote))
+				{
+					var o:StrumNote = cast obj;
+					mod.updateReceptor(beat, o, pos, player);
+				}
 			}
-			else if ((obj is StrumNote))
-			{
-				var o:StrumNote = cast obj;
-				mod.updateReceptor(beat, o, pos, player);
-			}
-		}
 		
+		}
+	
 		if ((obj is Note)) obj.updateHitbox();
 		
 		obj.centerOrigin();
@@ -284,13 +287,15 @@ class ModManager
 		pos.x = getBaseX(data, player);
 		pos.y = 50 + diff;
 		pos.z = 0;
-		for (name in activeMods[player])
-		{
-			if (exclusions.contains(name)) continue; // because some modifiers may want the path without reverse, for example. (which is actually more common than you'd think!)
-			var mod:Modifier = notemodRegister.get(name);
-			if (mod == null) continue;
-			if (!obj.active) continue;
-			pos = mod.getPos(time, diff, tDiff, beat, pos, data, player, obj);
+		if(activeMods[player] != null){
+			for (name in activeMods[player])
+			{
+				if (exclusions.contains(name)) continue; // because some modifiers may want the path without reverse, for example. (which is actually more common than you'd think!)
+				var mod:Modifier = notemodRegister.get(name);
+				if (mod == null) continue;
+				if (!obj.active) continue;
+				pos = mod.getPos(time, diff, tDiff, beat, pos, data, player, obj);
+			}
 		}
 		return pos;
 	}

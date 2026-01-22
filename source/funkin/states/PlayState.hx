@@ -176,6 +176,8 @@ class PlayState extends MusicBeatState
 	public static var noteSplashSkin:String = '';
 	
 	public var modManager:ModManager;
+	public var modifiersRegistered:Bool = false;
+	public var generatedFields:Bool = false;
 	
 	var speedChanges:Array<SpeedEvent> = [{}];
 	
@@ -464,6 +466,8 @@ class PlayState extends MusicBeatState
 	
 	public var inCutscene:Bool = false;
 	public var ingameCutscene:Bool = false;
+
+	public var genNotesBeforeCountdown:Bool = true;
 	
 	public var skipCountdown:Bool = false;
 	public var countdownSounds:Bool = true;
@@ -822,6 +826,8 @@ class PlayState extends MusicBeatState
 		
 		audio.inst?.stop();
 		
+		generatedFields = false;
+		modifiersRegistered = false;
 		modManager = new ModManager(this);
 		scripts.set("modManager", modManager);
 		
@@ -902,6 +908,9 @@ class PlayState extends MusicBeatState
 		
 		Conductor.safeZoneOffset = (ClientPrefs.safeFrames / 60) * 1000;
 		
+		if(genNotesBeforeCountdown)
+			generatePlayfields();
+
 		scripts.call('onCreatePost', []);
 		
 		callHUDFunc(hud -> hud.cachePopUpScore());
@@ -1159,7 +1168,10 @@ class PlayState extends MusicBeatState
 	}
 	
 	public function generatePlayfields()
-	{
+	{		
+		if(generatedFields)
+			return;
+
 		if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 		
 		for (lane in 0...SONG.lanes)
@@ -1192,10 +1204,12 @@ class PlayState extends MusicBeatState
 		
 		modManager.lanes = SONG.lanes;
 		
+		generatedFields = true;
 		scripts.call('postReceptorGeneration');
 		
 		modManager.registerEssentialModifiers();
 		modManager.registerDefaultModifiers();
+		modifiersRegistered = true;
 		
 		scripts.call('postModifierRegister');
 	}
@@ -1222,7 +1236,7 @@ class PlayState extends MusicBeatState
 		if (ret != ScriptConstants.Function_Stop)
 		{
 			// if its not 0 we can assume this was manually triggered
-			if (playFields.length == 0) generatePlayfields();
+			if (!genNotesBeforeCountdown) generatePlayfields();
 			
 			new FlxTimer().start(countdownDelay, (t:FlxTimer) -> {
 				startedCountdown = true;
@@ -1366,6 +1380,8 @@ class PlayState extends MusicBeatState
 		audio.time = time;
 		#if FLX_PITCH audio.pitch = playbackRate; #end
 		audio.play();
+
+		audio.hit();
 		
 		Conductor.songPosition = time;
 		songTime = time;
@@ -1483,7 +1499,9 @@ class PlayState extends MusicBeatState
 		
 		audio = new PlayableSong();
 		audio.populate(SONG);
-		
+		audio.hit();
+		add(audio);
+
 		#if FLX_PITCH
 		audio.pitch = playbackRate;
 		#end
@@ -1905,8 +1923,8 @@ class PlayState extends MusicBeatState
 		if (finishTimer != null) return;
 		
 		audio.pitch = playbackRate;
+		audio.volume = 1 * volumeMult;
 		audio.pause();
-		audio.play();
 		audio.time = audio.inst.time;
 		Conductor.songPosition = audio.inst.time;
 		#if FLX_PITCH audio.pitch = playbackRate; #end
@@ -1991,8 +2009,10 @@ class PlayState extends MusicBeatState
 		
 		doDeathCheck();
 		
-		modManager.updateTimeline(curDecStep);
-		modManager.update(elapsed);
+		if(modifiersRegistered){
+			modManager.updateTimeline(curDecStep);
+			modManager.update(elapsed);
+		}
 		
 		if (unspawnNotes[0] != null)
 		{
@@ -2072,7 +2092,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 		
-		if (startedCountdown)
+		if (modifiersRegistered)
 		{
 			for (i in 0...playFields?.length)
 			{
@@ -2098,7 +2118,7 @@ class PlayState extends MusicBeatState
 			}
 			
 			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.lane > (SONG.lanes - 1)) return;
+				if (daNote.lane > (SONG.lanes - 1) || !modifiersRegistered) return;
 				
 				final field = daNote.playField;
 				
@@ -3266,9 +3286,7 @@ class PlayState extends MusicBeatState
 	}
 	
 	function noteHit(note:Note, field:PlayField):Void
-	{
-		var intendedVocals = audio.playerVocals;
-		
+	{	
 		switch (field.ID)
 		{
 			case 0:
@@ -3296,11 +3314,9 @@ class PlayState extends MusicBeatState
 				health += note.hitHealth * healthGain;
 			case 1:
 				camZooming = true;
-				intendedVocals = audio.opponentVocals.length == 0 ? audio : audio.opponentVocals;
 				scripts.call('opponentNoteHitPre', [note]);
 			default:
 				// change the vocals in the script if u want to add extra vocal tracks
-				intendedVocals = audio.opponentVocals.length == 0 ? audio : audio.opponentVocals;
 				scripts.call('extraNoteHitPre', [note, field.ID]);
 		}
 		
@@ -3383,9 +3399,10 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		
-		audio.hit(intendedVocals, 1 * volumeMult);
-		
+
+		if(field.playerControls || (!audio.splitVocals && !audio.trackSwap))
+			audio.hit();
+
 		if (field.autoPlayed)
 		{
 			var time:Float = 0.15;
