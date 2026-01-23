@@ -1270,7 +1270,20 @@ class ChartEditorState extends MusicBeatState
 			for (i in 0..._song.notes[curSec].sectionNotes.length)
 			{
 				var note:Array<Dynamic> = _song.notes[curSec].sectionNotes[i];
-				note[1] = (note[1] + 4) % 8;
+				if(7 >= note[1]){
+					note[1] = (note[1] + 4) % 8;
+					_song.notes[curSec].sectionNotes[i] = note;
+				}
+			}
+			updateGrid();
+		});
+		
+		var shiftNotes:FlxButton = new FlxButton(swapSection.x + swapSection.width + 10, swapSection.y, "Shift section", function() {
+			for (i in 0..._song.notes[curSec].sectionNotes.length)
+			{
+				var note:Array<Dynamic> = _song.notes[curSec].sectionNotes[i];
+				note[1] = (note[1] + 4);
+				if(note[1] >= (lanes + 1) * 4) note[1] = (note[1] % 4);
 				_song.notes[curSec].sectionNotes[i] = note;
 			}
 			updateGrid();
@@ -1383,6 +1396,7 @@ class ChartEditorState extends MusicBeatState
 		tab_group_section.add(check_notesSec);
 		tab_group_section.add(check_eventsSec);
 		tab_group_section.add(swapSection);
+		tab_group_section.add(shiftNotes);
 		tab_group_section.add(stepperCopy);
 		tab_group_section.add(copyLastButton);
 		tab_group_section.add(duetButton);
