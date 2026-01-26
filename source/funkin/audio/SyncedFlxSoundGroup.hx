@@ -216,62 +216,68 @@ class VocalGroup extends SyncedFlxSoundGroup
 
 // @:forward
 // abstract PlayableSong(VocalGroup) to VocalGroup from VocalGroup
+
+@:nullSafety(Strict)
 class PlayableSong extends VocalGroup
 {
-	public var inst:FlxSound;
-	public var trackSwap:Bool;
-	public var splitVocals:Bool;
-	public var needsVoices:Bool;
+	public var inst:Null<FlxSound> = null;
+	public var trackSwap:Bool = false;
+	public var splitVocals:Bool = false;
 	
-	public function populate(data:SwagSong)
+	public function populate(?data:SwagSong):Void
 	{
-		volume = 1;
-
-		if (data != null)
+		if (data == null)
 		{
-			needsVoices = false;
-			splitVocals = false;
-			trackSwap = data.trackSwap;
+			Logger.log('Song provided was null. Cannot create tracks', WARN);
 			
-			if (trackSwap)
+			return;
+		}
+		
+		volume = 1;
+		
+		splitVocals = false;
+		trackSwap = data.trackSwap ?? false;
+		
+		if (trackSwap)
+		{
+			final instSnd = Paths.trackSwap(data.song, 'main');
+			if (instSnd != null)
 			{
-				inst = new FlxSound().loadEmbedded(Paths.trackswap(data.song, 'main'));
+				inst = new FlxSoundEx().loadEmbedded(instSnd);
 				add(inst);
-				
-				final track2 = new FlxSound().loadEmbedded(Paths.trackswap(data.song, 'miss'));
-				if (track2 != null) addOpponentVocals(track2);
-				
-				opponentVolume = 0;
 			}
-			else
+			
+			final missTrack = Paths.trackSwap(data.song, 'miss');
+			if (missTrack != null) addOpponentVocals(new FlxSoundEx().loadEmbedded(missTrack));
+			
+			opponentVolume = 0;
+		}
+		else
+		{
+			inst = new FlxSoundEx().loadEmbedded(Paths.inst(data.song));
+			add(inst);
+			
+			if (data.needsVoices)
 			{
-				needsVoices = data.needsVoices;
-				if (needsVoices)
+				splitVocals = Paths.voices(data.song, 'player') != null;
+				
+				var playerSound = Paths.voices(data.song, 'player');
+				if (playerSound == null)
 				{
-					splitVocals = true;
-
-					var playerSound = Paths.voices(data.song, 'player');
-					if(playerSound == null){
-						playerSound = Paths.voices(data.song, null);
-						splitVocals = false;
-					}
-					if (playerSound != null) addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
-					
-					final opponentSound = Paths.voices(data.song, 'opp');
-					if (opponentSound != null) 	addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
+					playerSound = Paths.voices(data.song, null);
 				}
 				
-				inst = new FlxSound().loadEmbedded(Paths.inst(data.song));
-				add(inst);
-
+				if (playerSound != null) addPlayerVocals(new FlxSoundEx().loadEmbedded(playerSound));
+				
+				final opponentSound = Paths.voices(data.song, 'opp');
+				if (opponentSound != null) addOpponentVocals(new FlxSoundEx().loadEmbedded(opponentSound));
 			}
 		}
 	}
-
+	
 	override public function play(forceRestart:Bool = false, startTime:Float = 0.0, ?endTime:Null<Float>)
 	{
-		if(trackSwap)
-			inst.volume = 0;
+		if (trackSwap && inst != null) inst.volume = 0;
 		
 		super.play(forceRestart, startTime, endTime);
 	}
@@ -280,21 +286,19 @@ class PlayableSong extends VocalGroup
 	{
 		if (trackSwap)
 		{
-			inst.volume = 0;
+			if (inst != null) inst.volume = 0;
 			opponentVolume = 1;
 		}
 		else playerVolume = 0;
-
 	}
 	
 	public function hit()
 	{
 		if (trackSwap)
 		{
-			inst.volume = 1;
+			if (inst != null) inst.volume = 1;
 			opponentVolume = 0;
-		} else 
-			playerVolume = 1;
+		}
+		else playerVolume = 1;
 	}
 }
-

@@ -465,8 +465,7 @@ class PlayState extends MusicBeatState
 	var shakeTime:Bool = false;
 	
 	public var inCutscene:Bool = false;
-	public var ingameCutscene:Bool = false;
-
+	
 	public var genNotesBeforeCountdown:Bool = true;
 	
 	public var skipCountdown:Bool = false;
@@ -908,9 +907,8 @@ class PlayState extends MusicBeatState
 		
 		Conductor.safeZoneOffset = (ClientPrefs.safeFrames / 60) * 1000;
 		
-		if(genNotesBeforeCountdown)
-			generatePlayfields();
-
+		if (genNotesBeforeCountdown) generatePlayfields();
+		
 		scripts.call('onCreatePost', []);
 		
 		callHUDFunc(hud -> hud.cachePopUpScore());
@@ -1168,10 +1166,9 @@ class PlayState extends MusicBeatState
 	}
 	
 	public function generatePlayfields()
-	{		
-		if(generatedFields)
-			return;
-
+	{
+		if (generatedFields) return;
+		
 		if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 		
 		for (lane in 0...SONG.lanes)
@@ -1380,7 +1377,7 @@ class PlayState extends MusicBeatState
 		audio.time = time;
 		#if FLX_PITCH audio.pitch = playbackRate; #end
 		audio.play();
-
+		
 		audio.hit();
 		
 		Conductor.songPosition = time;
@@ -1501,7 +1498,7 @@ class PlayState extends MusicBeatState
 		audio.populate(SONG);
 		audio.hit();
 		add(audio);
-
+		
 		#if FLX_PITCH
 		audio.pitch = playbackRate;
 		#end
@@ -2009,7 +2006,8 @@ class PlayState extends MusicBeatState
 		
 		doDeathCheck();
 		
-		if(modifiersRegistered){
+		if (modifiersRegistered)
+		{
 			modManager.updateTimeline(curDecStep);
 			modManager.update(elapsed);
 		}
@@ -3286,7 +3284,7 @@ class PlayState extends MusicBeatState
 	}
 	
 	function noteHit(note:Note, field:PlayField):Void
-	{	
+	{
 		switch (field.ID)
 		{
 			case 0:
@@ -3399,10 +3397,9 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-
-		if(field.playerControls || (!audio.splitVocals && !audio.trackSwap))
-			audio.hit();
-
+		
+		if (field.playerControls || (!audio.splitVocals && !audio.trackSwap)) audio.hit();
+		
 		if (field.autoPlayed)
 		{
 			var time:Float = 0.15;
